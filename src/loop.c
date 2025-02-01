@@ -41,6 +41,13 @@ void loop(Context* ctx) {
 	if(ctx->match.curx > BOARD_W - 2) {
     	ctx->match.curx = BOARD_W - 2;
 	}
+
+	if(ctx->input.select.just_pressed) {
+		uint8_t i = ctx->match.cury * BOARD_W + ctx->match.curx;
+		uint8_t tmp = ctx->match.board[i];
+		ctx->match.board[i] = ctx->match.board[i + 1];
+		ctx->match.board[i + 1] = tmp;
+	}
 	
 	// Draw
 	uint8_t board_x = LOGICAL_W / 2 - BOARD_W / 2 * 8;
