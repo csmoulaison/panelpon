@@ -5,6 +5,7 @@ SRC = $(wildcard src/*.c)
 
 panelpon: $(SRC)
 	gcc $(CFLAGS) -o $(EXE) $(SRC) $(LDFLAGS)
+	sh build/generate_atlas.sh
 
 .PHONY: test clean
 
