@@ -1,13 +1,13 @@
 #ifndef match_h_INCLUDED
 #define match_h_INCLUDED
 
-#define BOARD_WIDTH 8
-#define BOARD_HEIGHT 16
-#define BOARD_LEN BOARD_WIDTH * BOARD_HEIGHT
+#define BOARD_W 8
+#define BOARD_H 16
+#define BOARD_LEN BOARD_W * BOARD_H
 
 struct {
-    uint8_t cursor_x;
-    uint8_t cursor_y;
+    uint8_t curx;
+    uint8_t cury;
 	uint8_t board[BOARD_LEN];
 } typedef Match;
 

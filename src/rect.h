@@ -1,13 +1,14 @@
 #ifndef rect_h_INCLUDED
 #define rect_h_INCLUDED
 
+#include "SDL2/SDL.h"
 #include "stdint.h"
 
 struct {
-	uint32_t x;
-	uint32_t y;
-	uint32_t w;
-	uint32_t h;
+	uint8_t x;
+	uint8_t y;
+	uint8_t w;
+	uint8_t h;
 } typedef IRect;
 
 #endif // rect_h_INCLUDED

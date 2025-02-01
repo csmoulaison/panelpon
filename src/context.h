@@ -5,6 +5,10 @@
 #include "stdint.h"
 
 #include "input.h"
+#include "match.h"
+
+#define LOGICAL_W 216
+#define LOGICAL_H 216
 
 struct {
     // Time (for delta time calculation)
@@ -13,6 +17,8 @@ struct {
 	double dt;
     
     // Windows, renderers, and textures. Oh, my!
+    uint32_t screen_w;
+    uint32_t screen_h;
     SDL_Texture* atlas_primary;
     SDL_Texture* atlas_secondary;
 	SDL_Window* window;
@@ -21,6 +27,9 @@ struct {
 
 	// Input state. Might have multiple if we implement two player mode.
 	Input input;
+
+	// Game state
+	Match match;
 } typedef Context;
 
 #endif // context_h_INCLUDED
