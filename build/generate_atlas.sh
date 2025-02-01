@@ -10,6 +10,7 @@ then
     exit 1
 fi
 aseprite -b build/aseprite/atlas.aseprite --save-as build/tmp/atlas_tmp.bmp
+aseprite -b build/aseprite/icon.aseprite --save-as bin/icon.bmp
 
 # Split colors into primary and secondary
 # Two steps for primary to turn remaining blue -> white

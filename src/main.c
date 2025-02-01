@@ -1,10 +1,15 @@
-#include "SDL2/SDL.h"
 #include "stdio.h"
 
-#include "sprites.h"
-#include "palletes.h"
+#include "init.h"
+#include "loop.h"
 
 int main() {
-    SDL_Init(SDL_INIT_EVERYTHING);
+    Context ctx;
+    init(&ctx);
+
+	while(!ctx.input.quit.held && !ctx.input.quit_event) {
+    	loop(&ctx);
+	}
+    
     return 0;
 }
