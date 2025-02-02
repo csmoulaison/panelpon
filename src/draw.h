@@ -20,7 +20,10 @@ struct {
 
 void draw_clear(DrawContext* ctx);
 void draw_present(DrawContext* ctx);
-void draw_sprite(DrawContext* ctx, IRect src, IRect dst, Pallete pallete);
-void draw_sprite_flip(DrawContext* ctx, IRect src, IRect dst, Pallete pl, bool flip);
+
+void draw_sprite(DrawContext* ctx, IRect src, uint8_t x, uint8_t y, Pallete pl);
+void draw_sprite_flip(DrawContext* ctx, IRect src, uint8_t x, uint8_t y, Pallete pl, SDL_RendererFlip flip);
+void draw_anim(DrawContext* ctx, float t, uint8_t frames, IRect src, uint8_t x, uint8_t y, Pallete pl);
+void draw_anim_flip(DrawContext* ctx, float t, uint8_t frames, IRect src, uint8_t x, uint8_t y, Pallete pl, SDL_RendererFlip flip);
 
 #endif // draw_h_INCLUDED

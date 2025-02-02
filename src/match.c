@@ -52,7 +52,7 @@ void match_control(Match* match, Input* input) {
 	}
 }
 
-void match_tick(Match* match, double dt) {
+void match_tick(Match* match, float dt) {
 	// Types of movement
 	// - Token flipping - purely cosmetic, functionally instantaneous
 	// - Token falling - blocks associated token movements until complete
@@ -74,11 +74,16 @@ void match_tick(Match* match, double dt) {
     		match->flips[i].t += dt;
 		}
 	}
+
+	// Tick cursor
+	if(match->cursor_prev.t < 1) {
+		match->cursor_prev.t += dt * 12;
+	}
 }
 
 void match_draw(Match* match, DrawContext* ctx) {
-	uint8_t board_x = LOGICAL_W / 2 - BOARD_W / 2 * 8;
-	uint8_t board_y = LOGICAL_H / 2 - BOARD_H / 2 * 8;
+	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
+	uint8_t boardy = LOGICAL_H / 2 - BOARD_H / 2 * 8;
 
 	// Skip these tiles during conventional drawing
 	bool skips[BOARD_LEN];
@@ -96,21 +101,18 @@ void match_draw(Match* match, DrawContext* ctx) {
     	uint8_t flipy;
     	coords_from_index(left, &flipx, &flipy);
 
-    	IRect left_spr;
-    	Pallete left_pl;
-    	spr_from_index(match->board, left, &left_spr, &left_pl);
+    	IRect spr;
+    	Pallete pl;
 
-    	left_spr.w = 16;
-    	left_spr.x += 8 + (uint8_t)(3 * match->flips[i].t) * 16;
-		draw_sprite_flip(ctx, left_spr, (IRect){board_x + flipx * 8, board_y + flipy * 8, 16, 8}, left_pl, true);
+    	spr_from_index(match->board, left, &spr, &pl);
+    	spr.w = 16;
+    	spr.x += 8;
+    	draw_anim_flip(ctx, match->flips[i].t, 3, spr, boardx + flipx * 8, boardy + flipy * 8, pl, true);
 
-    	IRect right_spr;
-    	Pallete right_pl;
-    	spr_from_index(match->board, left + 1, &right_spr, &right_pl);
-
-    	right_spr.w = 16;
-    	right_spr.x += 8 + (uint8_t)(3 * match->flips[i].t) * 16;
-		draw_sprite(ctx, right_spr, (IRect){board_x + flipx * 8, board_y + flipy * 8, 16, 8}, right_pl);
+    	spr_from_index(match->board, left + 1, &spr, &pl);
+    	spr.w = 16;
+    	spr.x += 8;
+    	draw_anim(ctx, match->flips[i].t, 3, spr, boardx + flipx * 8, boardy + flipy * 8, pl);
 
     	skips[left] = true;
     	skips[left + 1] = true;
@@ -129,14 +131,34 @@ void match_draw(Match* match, DrawContext* ctx) {
 		uint8_t x;
 		uint8_t y;
 		coords_from_index(i, &x, &y);
-        draw_sprite(ctx, spr, (IRect){board_x + x * 8, board_y + y * 8, 8, 8}, pl);
+        draw_sprite(ctx, spr, boardx + x * 8, boardy + y * 8, pl);
 	}
 
 	// Cursor
-	uint8_t curx;
-	uint8_t cury;
-	coords_from_index(match->cursor, &curx, &cury);
-	draw_sprite(ctx, SPR_CURSOR, (IRect){board_x + curx * 8 - 1, board_y + cury * 8 - 1, 18, 10}, PL_ALL_WHITE);
+	{
+    	uint8_t curx;
+    	uint8_t cury;
+    	coords_from_index(match->cursor, &curx, &cury);
+    	curx = boardx + curx * 8;
+    	cury = boardy + cury * 8;
+    	if(match->cursor_prev.t < 1) {
+    		if(match->cursor_prev.tile == match->cursor + 1) {
+    			IRect spr = SPR_CURSOR_MOVE_R;
+    			draw_anim_flip(ctx, match->cursor_prev.t, 2, spr, curx - 2, cury - 1, PL_ALL_WHITE, true);
+    		} else if(match->cursor_prev.tile == match->cursor - 1) {
+				IRect spr = SPR_CURSOR_MOVE_R;
+    			draw_anim(ctx, match->cursor_prev.t, 2, spr, curx - 9, cury - 1, PL_ALL_WHITE);
+    		} else if(match->cursor_prev.tile == match->cursor - BOARD_W) {
+				IRect spr = SPR_CURSOR_MOVE_D;
+    			draw_anim(ctx, match->cursor_prev.t, 2, spr, curx - 1, cury - 9, PL_ALL_WHITE);
+    		} else if(match->cursor_prev.tile == match->cursor + BOARD_W) {
+				IRect spr = SPR_CURSOR_MOVE_D;
+    			draw_anim_flip(ctx, match->cursor_prev.t, 2, spr, curx - 1, cury - 2, PL_ALL_WHITE, 2);
+    		}
+    	} else {
+        	draw_sprite(ctx, SPR_CURSOR, curx - 1, cury - 1, PL_ALL_WHITE);
+    	}
+	}
 }
 
 void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y) {

@@ -22,5 +22,7 @@
 #define SPR_ROUND   (IRect){0, 16, 8, 8}
 #define SPR_CROSS   (IRect){0, 24, 8, 8}
 #define SPR_CURSOR  (IRect){0, 32, 18, 10}
+#define SPR_CURSOR_MOVE_R  (IRect){18, 32, 27, 10}
+#define SPR_CURSOR_MOVE_D  (IRect){0, 42, 18, 19}
 
 #endif // config_h_INCLUDED

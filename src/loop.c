@@ -6,7 +6,7 @@ void loop(Context* ctx) {
     // Calculate delta time
 	ctx->time_last = ctx->time_now;	
 	ctx->time_now = SDL_GetTicks64();
-	double dt = (double)(ctx->time_now - ctx->time_last) / 1000;
+	float dt = (float)(ctx->time_now - ctx->time_last) / 1000;
 
 	// Poll input
 	input_poll(&ctx->input);

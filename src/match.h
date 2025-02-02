@@ -9,13 +9,13 @@
 
 struct {
 	uint8_t tile; // Index into board
-	double t; // From 0 to 1
+	float t; // From 0 to 1
 } typedef TileEvent;
 
 struct {
     // Board
 	uint8_t board[BOARD_LEN];
-	double board_yoff;
+	float board_yoff;
 
 	// Cursor
     uint8_t cursor;
@@ -34,7 +34,7 @@ struct {
 } typedef Match;
 
 void match_control(Match* match, Input* input); 
-void match_tick(Match* match, double dt); 
+void match_tick(Match* match, float dt); 
 void match_draw(Match* match, DrawContext* ctx);
 
 void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y);
