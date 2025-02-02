@@ -56,10 +56,16 @@ void init(Context* ctx) {
 
     	map_scancode_to_button(input, SDL_SCANCODE_ESCAPE, &input->quit);
     	map_scancode_to_button(input, SDL_SCANCODE_SPACE,  &input->select);
+    	map_scancode_to_button(input, SDL_SCANCODE_RETURN, &input->select);
+    	map_scancode_to_button(input, SDL_SCANCODE_Z,      &input->select);
     	map_scancode_to_button(input, SDL_SCANCODE_W, 	   &input->up);
     	map_scancode_to_button(input, SDL_SCANCODE_S, 	   &input->down);
     	map_scancode_to_button(input, SDL_SCANCODE_A, 	   &input->left);
     	map_scancode_to_button(input, SDL_SCANCODE_D, 	   &input->right);
+    	map_scancode_to_button(input, SDL_SCANCODE_UP, 	   &input->up);
+    	map_scancode_to_button(input, SDL_SCANCODE_DOWN,   &input->down);
+    	map_scancode_to_button(input, SDL_SCANCODE_LEFT,   &input->left);
+    	map_scancode_to_button(input, SDL_SCANCODE_RIGHT,  &input->right);
 	}
 
 	// Init match (this'll go somewhere else eventually, of course.
@@ -68,11 +74,10 @@ void init(Context* ctx) {
     	match->cursor = 0;
     	for(uint8_t i = 0; i < BOARD_LEN; i++) {
     		match->board[i] = rand() % (SHAPES_LEN + 1);
+    		match->flips[i] = 2;
+    		match->explodes[i] = 2;
+    		match->falls[i] = 2;
     	}
-
-    	match->flips_len = 0;
-    	match->explodes_len = 0;
-    	match->falls_len = 0;
 	}
 }
 
