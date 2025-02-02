@@ -67,7 +67,7 @@ void init(Context* ctx) {
     	Match* match = &ctx->match;
     	match->cursor = 0;
     	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-    		match->board[i] = rand() % SHAPES_LEN;
+    		match->board[i] = rand() % (SHAPES_LEN + 1);
     	}
 
     	match->flips_len = 0;
