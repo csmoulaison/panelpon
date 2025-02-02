@@ -2,7 +2,6 @@
 #define loop_h_INCLUDED
 
 #include "context.h"
-#include "draw.h"
 
 void loop(Context* ctx);
 

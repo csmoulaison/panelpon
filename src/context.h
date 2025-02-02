@@ -14,21 +14,9 @@ struct {
     // Time (for delta time calculation)
 	uint64_t time_last;
 	uint64_t time_now;
-	double dt;
-    
-    // Windows, renderers, and textures. Oh, my!
-    uint32_t screen_w;
-    uint32_t screen_h;
-    SDL_Texture* atlas_primary;
-    SDL_Texture* atlas_secondary;
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	uint32_t clear_color;
 
-	// Input state. Might have multiple if we implement two player mode.
+    DrawContext draw;
 	Input input;
-
-	// Game state
 	Match match;
 } typedef Context;
 
