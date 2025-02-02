@@ -74,6 +74,7 @@ void init(Context* ctx) {
     	match->cursor = 0;
     	for(uint8_t i = 0; i < BOARD_LEN; i++) {
     		match->board[i] = rand() % (SHAPES_LEN + 1);
+    		if(rand() % 2 == 0) match->board[i] = 0;
     		match->flips[i] = 2;
     		match->explodes[i] = 2;
     		match->falls[i] = 2;

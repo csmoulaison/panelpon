@@ -33,6 +33,7 @@ void draw_anim(DrawContext* ctx, float t, uint8_t frames, IRect src, uint8_t x, 
 }
 
 void draw_anim_flip(DrawContext* ctx, float t, uint8_t frames, IRect src, uint8_t x, uint8_t y, Pallete pl, SDL_RendererFlip flip) {
+    if(t >= 1) t = 0.99;
 	src.x += (uint8_t)(frames * t) * src.w;
 	draw_sprite_flip(ctx, src, x, y, pl, flip);
 }

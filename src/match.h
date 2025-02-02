@@ -25,6 +25,7 @@ struct {
 	float flips[BOARD_LEN]; // index references left hand tile
 	float explodes[BOARD_LEN];  // index references exploding tile, duh
 	float falls[BOARD_LEN]; // index references end y pos
+	float hitches[BOARD_LEN]; // index references hitched tile
 } typedef Match;
 
 void match_control(Match* match, Input* input); 

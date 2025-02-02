@@ -39,9 +39,11 @@ void match_control(Match* match, Input* input) {
 		// Cancel adjacent flip animations
 		if(curx > 0) {
        		match->flips[match->cursor + 1] = 2;
+       		match->falls[match->cursor + 1] = 2;
 		}
 		if(curx < BOARD_W - 2) {
     		match->flips[match->cursor] = 2;
+       		match->falls[match->cursor] = 2;
 		}
 
 		match->flips[match->cursor] = 0;
@@ -54,28 +56,32 @@ void match_tick(Match* match, float dt) {
 	// - Tokens exploding - blocks until complete
 	// - Token generation / board movement - constant, offset++ until tile sized
 
-	/* Check for tile falling
+	// Check for tile falling
 	for(uint8_t x = 0; x < BOARD_W; x++) {
-    	for(uint8_t y = BOARD_H - 1; y >= 0; y--) {
+    	for(uint8_t y = BOARD_H - 1; y >= 1; y--) {
         	uint8_t i = index_from_coords(x, y);
 
         	// Skip anything which isn't a non-empty tile on top of an empty tile,
         	// also excluding falls which are already in motion on the upper tile.
-    		if(match->falls[i - BOARD_W] < 1 || match->board[i] != 0 || match->board[i - BOARD_W] == 0) {
+    		if(match->falls[i - BOARD_W] < 1 
+    		|| match->flips[i - BOARD_W] < 1 
+    		|| match->flips[i - BOARD_W - 1] < 1
+    		|| match->board[i] != 0 
+    		|| match->board[i - BOARD_W] == 0) {
 				continue;
     		}
 
 			match->board[i] = match->board[i - BOARD_W];
+			match->board[i - BOARD_W] = 0;
 			match->falls[i] = 0;
     	}
 	}
-	*/
 
 	// Update event ticks
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-		match->flips[i] += dt * 8;
+		match->flips[i] += dt * 4;
 		match->explodes[i] += dt * 8;
-		match->falls[i] += dt * 8;
+		match->falls[i] += dt * 6;
 	}
 
 	// Tick cursor
@@ -94,7 +100,7 @@ void match_draw(Match* match, DrawContext* ctx) {
 
 	// Draw flips
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-		if(match->flips[i] > 1) {
+		if(match->flips[i] > 0.5) {
     		continue;
 		}
     	
@@ -106,19 +112,20 @@ void match_draw(Match* match, DrawContext* ctx) {
 
     	IRect spr;
     	Pallete pl;
+		float anim_t = match->flips[i] * 2;
 
 		if(match->board[i] != 0) {
         	spr_from_index(match->board, i, &spr, &pl);
         	spr.w *= 2;
         	spr.x += SPR_TILE_MOVE_OFFSET;
-        	draw_anim_flip(ctx, match->flips[i], SPR_TILE_MOVE_FRAMES, spr, boardx + flipx * 8, boardy + flipy * 8, pl, true);
+        	draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAMES, spr, boardx + flipx * 8, boardy + flipy * 8, pl, true);
 		}
 
 		if(match->board[i + 1] != 0) {
         	spr_from_index(match->board, i + 1, &spr, &pl);
         	spr.w *= 2;
         	spr.x += SPR_TILE_MOVE_OFFSET;
-        	draw_anim(ctx, match->flips[i], SPR_TILE_MOVE_FRAMES, spr, boardx + flipx * 8, boardy + flipy * 8, pl);
+        	draw_anim(ctx, anim_t, SPR_TILE_MOVE_FRAMES, spr, boardx + flipx * 8, boardy + flipy * 8, pl);
 		}
 
     	skips[i] = true;
@@ -138,7 +145,14 @@ void match_draw(Match* match, DrawContext* ctx) {
 		uint8_t x;
 		uint8_t y;
 		coords_from_index(i, &x, &y);
-        draw_sprite(ctx, spr, boardx + x * 8, boardy + y * 8, pl);
+
+		// Offset y if currently falling
+		uint8_t yoff = 0;
+        if(match->falls[i] < 1) {
+            yoff = 8 * match->falls[i] - 8;
+        }
+
+        draw_sprite(ctx, spr, boardx + x * 8, boardy + y * 8 + yoff, pl);
 	}
 
 	// Cursor
