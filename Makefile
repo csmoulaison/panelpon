@@ -1,7 +1,7 @@
 CFLAGS = -std=c17
-LDFLAGS = -lSDL2main -lSDL2 
+LDFLAGS = -lSDL2main -lSDL2 -ldl -lm -lpthread
 EXE = bin/panelpon
-SRC = $(wildcard src/*.c)
+SRC = $(wildcard src/*.c) src/miniaudio/miniaudio.c
 
 panelpon: $(SRC)
 	gcc $(CFLAGS) -o $(EXE) $(SRC) $(LDFLAGS)

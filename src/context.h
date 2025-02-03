@@ -6,6 +6,7 @@
 
 #include "input.h"
 #include "match.h"
+#include "audio.h"
 
 #define LOGICAL_W 216
 #define LOGICAL_H 216
@@ -16,6 +17,7 @@ struct {
 	uint64_t time_now;
 
     DrawContext draw;
+    AudioContext audio;
 	Input input;
 	Match match;
 } typedef Context;
