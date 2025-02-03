@@ -3,7 +3,10 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+#include "test_sound.h"
 #include "config.h"
+
+#include<unistd.h>
 
 SDL_Surface* load_surface(const char* path) {
 	SDL_Surface* surf = SDL_LoadBMP(path);
@@ -50,10 +53,10 @@ void init(Context* ctx) {
 
 	// Init audio context
 	{
-		AudioContext* audio = &ctx->audio;
+		struct AudioContext* audio = &ctx->audio;
 		audio->device_config = ma_device_config_init(ma_device_type_playback);
-		audio->device_config.playback.format = ma_format_f32;
-		audio->device_config.playback.channels = 1;
+		audio->device_config.playback.format = ma_format_s16;
+		audio->device_config.playback.channels = 2;
 		audio->device_config.sampleRate = SAMPLE_RATE;
 		audio->device_config.dataCallback = audio_data_callback;
 		audio->device_config.pUserData = &audio->data;
@@ -62,15 +65,14 @@ void init(Context* ctx) {
     		printf("Could not open playback device.\n");
     		exit(1);
 		}
-
 		// TODO: See note in audio.h on deprecating the waveforms.
 		audio->wave_config = ma_waveform_config_init(
-    		audio->device.playback.internalFormat,
+    		audio->device.playback.format,
     		audio->device.playback.channels,
     		audio->device.sampleRate,
-    		ma_waveform_type_square,
-    		0,
-    		0
+    		ma_waveform_type_sine,
+    		0.2,
+    		200
 		);
 		ma_waveform_init(&audio->wave_config, &audio->data.waveform);
 
@@ -79,11 +81,17 @@ void init(Context* ctx) {
     		ma_device_uninit(&audio->device);
     		exit(1);
 		}
+		printf("Device started.\n");
 
-		audio->data.waves[0].amp = 0;
-		audio->data.waves[1].amp = 0;
-		audio->data.waves[0].freq = 0;
-		audio->data.waves[1].freq = 0;
+		audio->data.voices[0].amp = 0;
+		audio->data.voices[1].amp = 0;
+		audio->data.voices[0].freq = 0;
+		audio->data.voices[1].freq = 0;
+
+		//ctx->snd_test.data = &ctx->snd_data;
+		//ctx->snd_test.callback = test;
+		//ctx->snd_test.priority = 1;
+		//sound_register(&audio->library, &ctx->snd_test);
 	}
 
 	// Init input
@@ -119,5 +127,3 @@ void init(Context* ctx) {
     	}
 	}
 }
-
-

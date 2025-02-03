@@ -17,9 +17,12 @@ struct {
 	uint64_t time_now;
 
     DrawContext draw;
-    AudioContext audio;
+    struct AudioContext audio;
 	Input input;
 	Match match;
+
+	struct Sound snd_test;
+	float snd_data;
 } typedef Context;
 
 #endif // context_h_INCLUDED

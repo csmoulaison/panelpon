@@ -18618,13 +18618,31 @@ static ma_pa_stream* ma_device__pa_stream_new__pulse(ma_device* pDevice, const c
     static int g_StreamCounter = 0;
     char actualStreamName[256];
 
+	// Conner Moulaison 2.3.25 - Original miniaudio code
     if (pStreamName != NULL) {
         ma_strncpy_s(actualStreamName, sizeof(actualStreamName), pStreamName, (size_t)-1);
     } else {
         ma_strcpy_s(actualStreamName, sizeof(actualStreamName), "miniaudio:");
-        ma_itoa_s(g_StreamCounter, actualStreamName + 8, sizeof(actualStreamName)-8, 10);  /* 8 = strlen("miniaudio:") */
+        ma_itoa_s(g_StreamCounter, actualStreamName + 8, sizeof(actualStreamName)-8, 10);  // 8 = strlen("miniaudio:")
     }
     g_StreamCounter += 1;
+
+    /* Conner Moulaison 2.3.25 - Fix implemented from adazem009 as seen here:
+	// https://github.com/scratchcpp/libscratchcpp/commit/e60f7c071fdfb035eb9525495c15fed77db31945
+    static ma_mutex g_StreamCounterMutex;
+
+    ma_mutex_lock(&g_StreamCounterMutex);
+    {
+        if(pStreamName != NULL) {
+            ma_strncpy_s(actualStreamName, sizeof(actualStreamName), pStreamName, (size_t) - 1);
+        } else {
+            ma_strcpy_s(actualStreamName, sizeof(actualStreamName), "miniaudio:");
+            ma_itoa_s(g_StreamCounter, actualStreamName + 8, sizeof(actualStreamName) - 8, 10);
+        }
+        g_StreamCounter += 1;
+    }
+    ma_mutex_unlock(&g_StreamCounterMutex);
+    // End CM */
 
     return ((ma_pa_stream_new_proc)pDevice->pContext->pulse.pa_stream_new)((ma_pa_context*)pDevice->pulse.pPulseContext, actualStreamName, ss, cmap);
 }
