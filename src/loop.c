@@ -2,6 +2,8 @@
 
 #include "match.h"
 
+#include "stdio.h"
+
 void loop(Context* ctx) {
     // Calculate delta time
 	ctx->time_last = ctx->time_now;	

@@ -54,30 +54,36 @@ void init(Context* ctx) {
 		audio->device_config = ma_device_config_init(ma_device_type_playback);
 		audio->device_config.playback.format = ma_format_f32;
 		audio->device_config.playback.channels = 1;
-		audio->device_config.sampleRate = 48000;
+		audio->device_config.sampleRate = SAMPLE_RATE;
 		audio->device_config.dataCallback = audio_data_callback;
-		audio->device_config.pUserData = &audio->callback_data;
+		audio->device_config.pUserData = &audio->data;
 
 		if(ma_device_init(NULL, &audio->device_config, &audio->device) != MA_SUCCESS) {
     		printf("Could not open playback device.\n");
     		exit(1);
 		}
 
+		// TODO: See note in audio.h on deprecating the waveforms.
 		audio->wave_config = ma_waveform_config_init(
     		audio->device.playback.internalFormat,
     		audio->device.playback.channels,
     		audio->device.sampleRate,
-    		ma_waveform_type_sine,
-    		0.2,
-    		200
+    		ma_waveform_type_square,
+    		0,
+    		0
 		);
-		ma_waveform_init(&audio->wave_config, &audio->callback_data.wave);
+		ma_waveform_init(&audio->wave_config, &audio->data.waveform);
 
 		if(ma_device_start(&audio->device) != MA_SUCCESS) {
     		printf("Could not start playback device.\n");
     		ma_device_uninit(&audio->device);
     		exit(1);
 		}
+
+		audio->data.waves[0].amp = 0;
+		audio->data.waves[1].amp = 0;
+		audio->data.waves[0].freq = 0;
+		audio->data.waves[1].freq = 0;
 	}
 
 	// Init input

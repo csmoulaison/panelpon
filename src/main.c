@@ -2,6 +2,7 @@
 
 #include "init.h"
 #include "loop.h"
+#include "destroy.h"
 
 int main() {
     Context ctx;
@@ -10,6 +11,8 @@ int main() {
 	while(!ctx.input.quit.held && !ctx.input.quit_event) {
     	loop(&ctx);
 	}
+
+	destroy(&ctx);
     
     return 0;
 }
