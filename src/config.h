@@ -19,13 +19,13 @@
 // Sprites
 #define SPR_TILE_MOVE_OFFSET 8 // Start of tile movement animation as offset from the tile sprite
 #define SPR_TILE_MOVE_FRAMES 3
-#define SPR_SQUARE  (IRect){0, 0, 8, 8}
-#define SPR_DIAMOND (IRect){0, 8, 8, 8}
-#define SPR_ROUND   (IRect){0, 16, 8, 8}
-#define SPR_CROSS   (IRect){0, 24, 8, 8}
-#define SPR_CURSOR  (IRect){0, 32, 18, 10}
+#define SPR_SQUARE  (struct IRect){0, 0, 8, 8}
+#define SPR_DIAMOND (struct IRect){0, 8, 8, 8}
+#define SPR_ROUND   (struct IRect){0, 16, 8, 8}
+#define SPR_CROSS   (struct IRect){0, 24, 8, 8}
+#define SPR_CURSOR  (struct IRect){0, 32, 18, 10}
 #define SPR_CURSOR_MOVE_FRAMES 2
-#define SPR_CURSOR_MOVE_R  (IRect){18, 32, 27, 10}
-#define SPR_CURSOR_MOVE_D  (IRect){0, 42, 18, 19}
+#define SPR_CURSOR_MOVE_R  (struct IRect){18, 32, 27, 10}
+#define SPR_CURSOR_MOVE_D  (struct IRect){0, 42, 18, 19}
 
 #endif // config_h_INCLUDED

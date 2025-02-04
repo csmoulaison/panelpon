@@ -3,14 +3,13 @@
 
 #include "audio.h"
 
-enum SoundState test(struct Voice* voice, void* data) {
-	if(voice->t > 1) {
-		return SOUND_FINISHED;
-	}
+void test(struct Sound* sound) {
+	sound->freq = *(float*)sound->data + sound->t * 1000;
+	sound->amp = 0.2;
 
-	voice->freq = *(float*)data;
-	voice->amp = 0.2;
-	return SOUND_ONGOING;
+	if(sound->t > 0.1) {
+    	sound->active = false;
+	}
 }
 
 #endif // test_sound_h_INCLUDED

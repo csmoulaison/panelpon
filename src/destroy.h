@@ -3,6 +3,6 @@
 
 #include "context.h"
 
-void destroy(Context* ctx);
+void destroy(struct Context* ctx);
 
 #endif // destroy_h_INCLUDED

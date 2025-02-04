@@ -7,7 +7,7 @@
 #include "input.h"
 #include "draw.h"
 
-struct {
+struct Match {
     // Board, including y offset for upwards movement
 	uint8_t board[BOARD_LEN];
 	float board_yoff;
@@ -26,14 +26,14 @@ struct {
 	float explodes[BOARD_LEN];  // index references exploding tile, duh
 	float falls[BOARD_LEN]; // index references end y pos
 	float hitches[BOARD_LEN]; // index references hitched tile
-} typedef Match;
+};
 
-void match_control(Match* match, Input* input); 
-void match_tick(Match* match, float dt); 
-void match_draw(Match* match, DrawContext* ctx);
+void match_control(struct Match* match, struct Input* input); 
+void match_tick(struct Match* match, float dt); 
+void match_draw(struct Match* match, struct DrawContext* ctx);
 
 void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y);
 uint8_t index_from_coords(uint8_t x, uint8_t y);
-void spr_from_index(uint8_t* board, uint8_t i, IRect* spr, Pallete* pl);
+void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete* pl);
 
 #endif // match_h_INCLUDED

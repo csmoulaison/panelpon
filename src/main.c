@@ -5,7 +5,7 @@
 #include "destroy.h"
 
 int main() {
-    Context ctx;
+    struct Context ctx;
     init(&ctx);
 
 	while(!ctx.input.quit.held && !ctx.input.quit_event) {

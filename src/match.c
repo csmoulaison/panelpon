@@ -3,7 +3,7 @@
 #include "stdbool.h"
 #include "stdio.h"
 
-void match_control(Match* match, Input* input) {
+void match_control(struct Match* match, struct Input* input) {
     // Updated and used throughout function
 	uint8_t curx;
 	uint8_t cury;
@@ -50,7 +50,7 @@ void match_control(Match* match, Input* input) {
 	}
 }
 
-void match_tick(Match* match, float dt) {
+void match_tick(struct Match* match, float dt) {
 	// Types of movement
 	// - Token falling - blocks associated token movements until complete
 	// - Tokens exploding - blocks until complete
@@ -88,7 +88,7 @@ void match_tick(Match* match, float dt) {
 	match->cursor_anim_t += dt * 12;
 }
 
-void match_draw(Match* match, DrawContext* ctx) {
+void match_draw(struct Match* match, struct DrawContext* ctx) {
 	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
 	uint8_t boardy = LOGICAL_H / 2 - BOARD_H / 2 * 8;
 
@@ -110,8 +110,8 @@ void match_draw(Match* match, DrawContext* ctx) {
     	uint8_t flipy;
     	coords_from_index(i, &flipx, &flipy);
 
-    	IRect spr;
-    	Pallete pl;
+    	struct IRect spr;
+    	struct Pallete pl;
 		float anim_t = match->flips[i] * 2;
 
 		if(match->board[i] != 0) {
@@ -138,8 +138,8 @@ void match_draw(Match* match, DrawContext* ctx) {
     		continue;
 		}
         
-    	IRect spr;
-    	Pallete pl;
+    	struct IRect spr;
+    	struct Pallete pl;
     	spr_from_index(match->board, i, &spr, &pl);
 
 		uint8_t x;
@@ -165,16 +165,16 @@ void match_draw(Match* match, DrawContext* ctx) {
     	if(match->cursor_anim_t < 1) {
         	uint8_t frames = SPR_CURSOR_MOVE_FRAMES;
     		if(match->cursor_anim_prev == match->cursor + 1) {
-    			IRect spr = SPR_CURSOR_MOVE_R;
+    			struct IRect spr = SPR_CURSOR_MOVE_R;
     			draw_anim_flip(ctx, match->cursor_anim_t, frames, spr, curx - 2, cury - 1, PL_ALL_WHITE, true);
     		} else if(match->cursor_anim_prev == match->cursor - 1) {
-				IRect spr = SPR_CURSOR_MOVE_R;
+				struct IRect spr = SPR_CURSOR_MOVE_R;
     			draw_anim(ctx, match->cursor_anim_t, frames, spr, curx - 9, cury - 1, PL_ALL_WHITE);
     		} else if(match->cursor_anim_prev == match->cursor - BOARD_W) {
-				IRect spr = SPR_CURSOR_MOVE_D;
+				struct IRect spr = SPR_CURSOR_MOVE_D;
     			draw_anim(ctx, match->cursor_anim_t, frames, spr, curx - 1, cury - 9, PL_ALL_WHITE);
     		} else if(match->cursor_anim_prev == match->cursor + BOARD_W) {
-				IRect spr = SPR_CURSOR_MOVE_D;
+				struct IRect spr = SPR_CURSOR_MOVE_D;
     			draw_anim_flip(ctx, match->cursor_anim_t, frames, spr, curx - 1, cury - 2, PL_ALL_WHITE, 2);
     		}
     	} else {
@@ -192,7 +192,7 @@ uint8_t index_from_coords(uint8_t x, uint8_t y) {
     return y * BOARD_W + x;
 }
 
-void spr_from_index(uint8_t* board, uint8_t i, IRect* spr, Pallete* pl) {
+void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete* pl) {
 	switch(board[i]) {
         case 1:
             *spr = SPR_ROUND;

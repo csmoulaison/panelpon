@@ -3,6 +3,6 @@
 
 #include "context.h"
 
-void init(Context* ctx);
+void init(struct Context* ctx);
 
 #endif // init_h_INCLUDED

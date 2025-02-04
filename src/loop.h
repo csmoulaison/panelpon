@@ -3,6 +3,6 @@
 
 #include "context.h"
 
-void loop(Context* ctx);
+void loop(struct Context* ctx);
 
 #endif // loop_h_INCLUDED

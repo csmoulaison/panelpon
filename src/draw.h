@@ -8,7 +8,7 @@
 #include "palletes.h"
 #include "rect.h"
 
-struct {
+struct DrawContext {
     uint32_t screen_w;
     uint32_t screen_h;
     SDL_Texture* atlas_primary;
@@ -16,14 +16,14 @@ struct {
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	uint32_t clear_color;
-} typedef DrawContext;
+};
 
-void draw_clear(DrawContext* ctx);
-void draw_present(DrawContext* ctx);
+void draw_clear(struct DrawContext* ctx);
+void draw_present(struct DrawContext* ctx);
 
-void draw_sprite(DrawContext* ctx, IRect src, uint8_t x, uint8_t y, Pallete pl);
-void draw_sprite_flip(DrawContext* ctx, IRect src, uint8_t x, uint8_t y, Pallete pl, SDL_RendererFlip flip);
-void draw_anim(DrawContext* ctx, float t, uint8_t frames, IRect src, uint8_t x, uint8_t y, Pallete pl);
-void draw_anim_flip(DrawContext* ctx, float t, uint8_t frames, IRect src, uint8_t x, uint8_t y, Pallete pl, SDL_RendererFlip flip);
+void draw_sprite(struct DrawContext* ctx, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl);
+void draw_sprite_flip(struct DrawContext* ctx, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl, SDL_RendererFlip flip);
+void draw_anim(struct DrawContext* ctx, float t, uint8_t frames, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl);
+void draw_anim_flip(struct DrawContext* ctx, float t, uint8_t frames, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl, SDL_RendererFlip flip);
 
 #endif // draw_h_INCLUDED

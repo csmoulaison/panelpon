@@ -3,73 +3,93 @@
 #include "stdlib.h"
 #include "stdio.h"
 
-#define AUDIO_BUF_LEN 2048
 #define MAX_T_SECONDS 256
 
-#define SOUND_STATE uint8_t
 #define SOUND_ONGOING  0
 #define SOUND_FINISHED 1
 
-void audio_update(struct AudioContext* ctx, float dt) {
+void audio_update(struct AudioContext* ctx) {
     for(uint8_t i = 0; i < VOICES_LEN; i++) {
-        struct Voice* voice = &ctx->data.voices[i];
-		if(voice->soundstack_len > 0) {
-    		uint8_t id = voice->soundstack[voice->soundstack_len - 1];
-    		struct Sound* sound = ctx->library.sounds[id];
-			if(sound->callback(voice, &sound->data) == SOUND_FINISHED) {
+        struct Voice* voice = &ctx->voices[i];
+
+		// Eliminate inactive sounds on soundstack
+		for(int j = 0; j < voice->soundstack_len; j++) {
+    		if(!voice->soundstack[j].active) {
+				for(int k = j + 1; k < voice->soundstack_len; k++) {
+					voice->soundstack[k - 1] = voice->soundstack[k];
+				}
 				voice->soundstack_len--;
-			}
+				j--; // We need to recheck the current index now.
+    		}
+		}
+
+       	// Update sound at the top of the stack
+		if(voice->soundstack_len > 0) {
+    		struct Sound* sound = &voice->soundstack[voice->soundstack_len - 1];
+			sound->callback(sound);
 		}
     }
 }
 
-void audio_data_callback(ma_device* device, void* output, const void* input, uint32_t frames_len) {
-    struct AudioData* data = (struct AudioData*)device->pUserData;
-    float* fout= (float*)output;
-	float* buf[AUDIO_BUF_LEN];
+int audio_callback(const void* input, void* output, unsigned long frames_per_buf, const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* userdata) {
+    // prevent unused variable warning
+    (void)input; 
+    (void)time_info;
+    (void)status_flags;
 
-	// Madness. See note on deprecation in audio.h
-	ma_waveform_read_pcm_frames(&data->waveform, buf, (uint64_t)frames_len, NULL);
+    struct AudioContext* ctx = (struct AudioContext*)userdata;
+    float* stream = (float*)output;
 
-	for(uint8_t i = 0; i < VOICES_LEN; i++) {
-		float delta = (1.0 / SAMPLE_RATE) * data->voices[i].freq;
+	for(int i = 0; i < VOICES_LEN; i++) {
+    	if(ctx->voices[i].soundstack_len == 0) {
+        	continue;
+    	}
+    	struct Sound* sound = &ctx->voices[i].soundstack[ctx->voices[i].soundstack_len - 1];
 
-		for(uint8_t j = 0; j < frames_len; j++) {
-    		data->voices[i].t += delta;
-
-			// Calculate square wave based on wave.t
-			float* frame = fout + j;
-			if((uint8_t)data->voices[i].t % 2 == 0) {
-    			*frame += data->voices[i].amp;
-    			if(*frame > 0.99) {
-					*frame = 0.99;
-    			} 
-			} else {
-    			*frame -= data->voices[i].amp;
-    			if(*frame < -0.99) {
-					*frame = -0.99;
-    			} 
-			}
-
-			// Re-up floating point accuracy
-			if(data->voices[i].t > MAX_T_SECONDS) {
-    			data->voices[i].t -= MAX_T_SECONDS;
-			}
-		}
+    	if(sound->t > MAX_T_SECONDS) {
+    		sound->t -= MAX_T_SECONDS;
+    	}
 	}
+
+	for(uint32_t i = 0; i < frames_per_buf; i++) {
+    	stream[i] = 0;
+
+		for(uint8_t j = 0; j < VOICES_LEN; j++) {
+        	if(ctx->voices[j].soundstack_len == 0) {
+            	continue;
+        	}
+        	struct Sound* sound = &ctx->voices[j].soundstack[ctx->voices[j].soundstack_len - 1];
+
+			if(!sound->active) {
+    			continue;
+			}
+    		
+    		sound->t += (1.0 / SAMPLE_RATE);
+
+    		if((uint32_t)(sound->t * sound->freq) % 2 == 0) {
+        		stream[i] += sound->amp;
+    		} else {
+        		stream[i] -= sound->amp;
+    		}
+		}
+
+		if(stream[i] > 0.99) stream[i] = 0.99;
+		if(stream[i] < -0.99) stream[i] = -0.99;
+	}
+
+	return 0;
 }
 
-void sound_register(struct SoundLibrary* library, struct Sound* sound) {
-    sound->id = library->sounds_len;
-    library->sounds[library->sounds_len] = sound;
-    library->sounds_len++;
-}
+void sound_play(struct AudioContext* ctx, struct Sound sound) {
+    sound.amp = 0;
+    sound.freq = 0;
+    sound.t = 0;
+    sound.active = true;
 
-void sound_play(struct AudioContext* ctx, struct Sound* sound, struct Voice* voice) {
+	// TODO: Better voice selection
+    struct Voice* voice = &ctx->voices[0];
+
     // TODO: Don't overflow and check priority
-    voice->soundstack[voice->soundstack_len] = sound->id;
+    voice->soundstack[voice->soundstack_len] = sound;
     voice->soundstack_len++;
-    voice->amp = 0;
-    voice->freq = 0;
-    voice->t = 0;
 }

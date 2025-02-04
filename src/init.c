@@ -24,7 +24,7 @@ SDL_Texture* load_texture(SDL_Renderer* renderer, const char* path) {
 	return SDL_CreateTextureFromSurface(renderer, surf);
 }
 
-void init(Context* ctx) {
+void init(struct Context* ctx) {
 	// Init SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -34,13 +34,14 @@ void init(Context* ctx) {
     
 	// Init draw context
 	{
-    	DrawContext* draw = &ctx->draw;
+    	struct DrawContext* draw = &ctx->draw;
     	SDL_DisplayMode mode;
     	SDL_GetDesktopDisplayMode(0, &mode);
     	draw->screen_w = mode.w;
     	draw->screen_h = mode.h;
     	
-    	draw->window = SDL_CreateWindow("panelpon", 0, 0, draw->screen_w, draw->screen_h, SDL_WINDOW_BORDERLESS);
+    	//draw->window = SDL_CreateWindow("panelpon", 0, 0, draw->screen_w, draw->screen_h, 0);
+    	draw->window = SDL_CreateWindow("panelpon", 0, 0, 0, 0, SDL_WINDOW_RESIZABLE);
     	draw->renderer = SDL_CreateRenderer(draw->window, -1, SDL_RENDERER_ACCELERATED);
     	SDL_RenderSetLogicalSize(draw->renderer, LOGICAL_W, LOGICAL_H);
 
@@ -54,49 +55,39 @@ void init(Context* ctx) {
 	// Init audio context
 	{
 		struct AudioContext* audio = &ctx->audio;
-		audio->device_config = ma_device_config_init(ma_device_type_playback);
-		audio->device_config.playback.format = ma_format_s16;
-		audio->device_config.playback.channels = 2;
-		audio->device_config.sampleRate = SAMPLE_RATE;
-		audio->device_config.dataCallback = audio_data_callback;
-		audio->device_config.pUserData = &audio->data;
 
-		if(ma_device_init(NULL, &audio->device_config, &audio->device) != MA_SUCCESS) {
-    		printf("Could not open playback device.\n");
-    		exit(1);
+		for(int i = 0; i < VOICES_LEN; i++) {
+    		audio->voices[i].soundstack_len = 0;
 		}
-		// TODO: See note in audio.h on deprecating the waveforms.
-		audio->wave_config = ma_waveform_config_init(
-    		audio->device.playback.format,
-    		audio->device.playback.channels,
-    		audio->device.sampleRate,
-    		ma_waveform_type_sine,
-    		0.2,
-    		200
-		);
-		ma_waveform_init(&audio->wave_config, &audio->data.waveform);
 
-		if(ma_device_start(&audio->device) != MA_SUCCESS) {
-    		printf("Could not start playback device.\n");
-    		ma_device_uninit(&audio->device);
+		ctx->snd_test.data = &ctx->snd_data;
+		ctx->snd_test.callback = test;
+		ctx->snd_test.priority = 1;
+    	
+    	PaError e = Pa_Initialize();
+    	if(e != paNoError) {
+    		printf("PortAudio error: %s\n", Pa_GetErrorText(e));
     		exit(1);
-		}
-		printf("Device started.\n");
+    	}
 
-		audio->data.voices[0].amp = 0;
-		audio->data.voices[1].amp = 0;
-		audio->data.voices[0].freq = 0;
-		audio->data.voices[1].freq = 0;
+    	PaStream* stream;
+    	e = Pa_OpenDefaultStream(&stream, 0, 1, paFloat32, SAMPLE_RATE, paFramesPerBufferUnspecified, audio_callback, &ctx->audio);
+    	if(e != paNoError) {
+    		printf("PortAudio error: %s\n", Pa_GetErrorText(e));
+    		exit(1);
+    	}
 
-		//ctx->snd_test.data = &ctx->snd_data;
-		//ctx->snd_test.callback = test;
-		//ctx->snd_test.priority = 1;
-		//sound_register(&audio->library, &ctx->snd_test);
+    	e = Pa_StartStream(stream);
+    	if(e != paNoError) {
+    		printf("PortAudio error: %s\n", Pa_GetErrorText(e));
+    		exit(1);
+    	}
+
 	}
 
 	// Init input
 	{
-    	Input* input = &ctx->input;
+    	struct Input* input = &ctx->input;
         input->scancode_btn_maps_len = 0;
         input->mapped_btns_len = 0;
 
@@ -112,11 +103,17 @@ void init(Context* ctx) {
     	map_scancode_to_button(input, SDL_SCANCODE_DOWN,   &input->down);
     	map_scancode_to_button(input, SDL_SCANCODE_LEFT,   &input->left);
     	map_scancode_to_button(input, SDL_SCANCODE_RIGHT,  &input->right);
+
+    	for(int i = 0; i < input->mapped_btns_len; i++) {
+			input->mapped_btns[i]->just_pressed = false;
+			input->mapped_btns[i]->just_released = false;
+			input->mapped_btns[i]->held = false;
+    	}
 	}
 
 	// Init match (this'll go somewhere else eventually, of course.
 	{
-    	Match* match = &ctx->match;
+    	struct Match* match = &ctx->match;
     	match->cursor = 0;
     	for(uint8_t i = 0; i < BOARD_LEN; i++) {
     		match->board[i] = rand() % (SHAPES_LEN + 1);
