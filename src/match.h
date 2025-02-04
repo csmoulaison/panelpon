@@ -6,6 +6,7 @@
 #include "config.h"
 #include "input.h"
 #include "draw.h"
+#include "audio.h"
 
 struct Match {
     // Board, including y offset for upwards movement
@@ -28,7 +29,7 @@ struct Match {
 	float hitches[BOARD_LEN]; // index references hitched tile
 };
 
-void match_control(struct Match* match, struct Input* input); 
+void match_control(struct Match* match, struct Input* input, struct AudioContext* audio); 
 void match_tick(struct Match* match, float dt); 
 void match_draw(struct Match* match, struct DrawContext* ctx);
 

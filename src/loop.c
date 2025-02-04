@@ -15,15 +15,11 @@ void loop(struct Context* ctx) {
 	input_poll(&ctx->input);
 
 	// Simulate
-	match_control(&ctx->match, &ctx->input);
+	match_control(&ctx->match, &ctx->input, &ctx->audio);
 	match_tick(&ctx->match, dt);
 	match_draw(&ctx->match, &ctx->draw);
 
 	// Test sound
-	if(ctx->input.select.just_pressed) {
-		sound_play(&ctx->audio, ctx->snd_test);
-		ctx->snd_data = 200 + (rand() % 4) * 100;
-	}
 
 	// Audio
 	audio_update(&ctx->audio);

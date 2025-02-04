@@ -13,12 +13,12 @@
 
 struct Sound {
     // Must be set on play
-    bool active;
 	uint8_t priority;
 	void* data;
 	void (*callback)(struct Sound* sound);
 
 	// Intended to be dynamically mofified by callback
+    bool active;
 	float amp;
 	float freq;
 	double t;

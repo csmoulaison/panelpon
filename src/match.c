@@ -2,8 +2,9 @@
 
 #include "stdbool.h"
 #include "stdio.h"
+#include "test_sound.h"
 
-void match_control(struct Match* match, struct Input* input) {
+void match_control(struct Match* match, struct Input* input, struct AudioContext* audio) {
     // Updated and used throughout function
 	uint8_t curx;
 	uint8_t cury;
@@ -27,11 +28,28 @@ void match_control(struct Match* match, struct Input* input) {
     		match->cursor_anim_prev = match->cursor;
     		match->cursor_anim_t = 0;
     		match->cursor = cursor_new;
+
+    		struct Sound sound;
+    		sound.priority = 1;
+    		sound.callback = snd_dark;
+    		sound_play(audio, sound);
     	}
     }
 
 	// Flip tiles
 	if(input->select.just_pressed) {
+		struct Sound sound;
+		sound.priority = 1;
+
+    	if(match->board[match->cursor] == 0 && match->board[match->cursor + 1] == 0) {
+    		sound.callback = snd_dark;
+    		sound_play(audio, sound);
+        	goto endflip;
+    	}
+
+		sound.callback = snd_upbeep;
+    	sound_play(audio, sound);
+
 		uint8_t tmp = match->board[match->cursor];
 		match->board[match->cursor] = match->board[match->cursor + 1];
 		match->board[match->cursor + 1] = tmp;
@@ -48,6 +66,7 @@ void match_control(struct Match* match, struct Input* input) {
 
 		match->flips[match->cursor] = 0;
 	}
+endflip:
 }
 
 void match_tick(struct Match* match, float dt) {

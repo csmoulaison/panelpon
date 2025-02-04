@@ -60,10 +60,6 @@ void init(struct Context* ctx) {
     		audio->voices[i].soundstack_len = 0;
 		}
 
-		ctx->snd_test.data = &ctx->snd_data;
-		ctx->snd_test.callback = test;
-		ctx->snd_test.priority = 1;
-    	
     	PaError e = Pa_Initialize();
     	if(e != paNoError) {
     		printf("PortAudio error: %s\n", Pa_GetErrorText(e));

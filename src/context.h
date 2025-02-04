@@ -20,9 +20,6 @@ struct Context {
     struct AudioContext audio;
 	struct Input input;
 	struct Match match;
-
-	struct Sound snd_test;
-	float snd_data;
 };
 
 #endif // context_h_INCLUDED
