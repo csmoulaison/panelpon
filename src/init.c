@@ -2,6 +2,7 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include "time.h"
 
 #include "config.h"
 
@@ -29,6 +30,9 @@ void init(struct Context* ctx) {
 	// Init time
 	ctx->time_now = SDL_GetTicks64();
 	ctx->time_last = 0;
+
+	// Init rand
+	srand(time(NULL));
     
 	// Init draw context
 	{
@@ -39,7 +43,7 @@ void init(struct Context* ctx) {
     	draw->screen_h = mode.h;
     	
     	//draw->window = SDL_CreateWindow("panelpon", 0, 0, draw->screen_w, draw->screen_h, 0);
-    	draw->window = SDL_CreateWindow("panelpon", 0, 0, 0, 0, SDL_WINDOW_RESIZABLE);
+    	draw->window = SDL_CreateWindow("panelpon", 0, 0, 1024, 1024, SDL_WINDOW_RESIZABLE);
     	draw->renderer = SDL_CreateRenderer(draw->window, -1, SDL_RENDERER_ACCELERATED);
     	SDL_RenderSetLogicalSize(draw->renderer, LOGICAL_W, LOGICAL_H);
 
@@ -105,16 +109,17 @@ void init(struct Context* ctx) {
     	}
 	}
 
-	// Init match (this'll go somewhere else eventually, of course.
+	// Init game (this'll go somewhere else eventually, of course.
 	{
-    	struct Match* match = &ctx->match;
-    	match->cursor = 0;
+    	struct Game* game = &ctx->game;
+    	game->cursor = 0;
     	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-    		match->board[i] = rand() % (SHAPES_LEN + 1);
-    		if(rand() % 2 == 0) match->board[i] = 0;
-    		match->flips[i] = 2;
-    		match->explodes[i] = 2;
-    		match->falls[i] = 2;
+    		game->board[i] = rand() % (SHAPES_LEN + 1);
+    		if(rand() % 2 == 0) game->board[i] = 0;
+    		game->flips[i] = 2;
+    		game->explodes[i] = 2;
+    		game->falls[i] = 2;
     	}
+    	game->hitch = -10000;
 	}
 }

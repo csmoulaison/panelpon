@@ -1,6 +1,6 @@
 #include "loop.h"
 
-#include "match.h"
+#include "game.h"
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -15,17 +15,19 @@ void loop(struct Context* ctx) {
 	input_poll(&ctx->input);
 
 	// Simulate
-	match_control(&ctx->match, &ctx->input, &ctx->audio);
-	match_tick(&ctx->match, dt);
-	match_draw(&ctx->match, &ctx->draw);
-
-	// Test sound
+	if(ctx->game.hitch > -1) {
+    	game_control(&ctx->game, &ctx->input, &ctx->audio);
+    	game_tick(&ctx->game, &ctx->audio, dt);
+    	game_draw(&ctx->game, &ctx->draw);
+	} else if(ctx->input.select.just_pressed) {
+    	ctx->game.hitch = 1;
+	}
 
 	// Audio
 	audio_update(&ctx->audio);
 
 	// Draw
 	draw_clear(&ctx->draw);
-	match_draw(&ctx->match, &ctx->draw);
+	game_draw(&ctx->game, &ctx->draw);
 	draw_present(&ctx->draw);
 }

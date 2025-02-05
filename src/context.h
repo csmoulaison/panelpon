@@ -5,7 +5,7 @@
 #include "stdint.h"
 
 #include "input.h"
-#include "match.h"
+#include "game.h"
 #include "audio.h"
 
 #define LOGICAL_W 216
@@ -19,7 +19,7 @@ struct Context {
     struct DrawContext draw;
     struct AudioContext audio;
 	struct Input input;
-	struct Match match;
+	struct Game game;
 };
 
 #endif // context_h_INCLUDED

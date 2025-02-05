@@ -6,5 +6,6 @@
 void snd_flip(struct Sound* sound);
 void snd_noflip(struct Sound* sound);
 void snd_move(struct Sound* sound);
+void snd_match(struct Sound* sound);
 
 #endif // test_sound_h_INCLUDED

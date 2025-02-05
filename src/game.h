@@ -1,5 +1,5 @@
-#ifndef match_h_INCLUDED
-#define match_h_INCLUDED
+#ifndef game_h_INCLUDED
+#define game_h_INCLUDED
 
 #define MAX_TILE_EVENTS BOARD_LEN
 
@@ -8,10 +8,11 @@
 #include "draw.h"
 #include "audio.h"
 
-struct Match {
+struct Game {
     // Board, including y offset for upwards movement
 	uint8_t board[BOARD_LEN];
 	float yoff;
+	float hitch;
 
 	// Cursor, including movement animation state
     uint8_t cursor;
@@ -27,15 +28,15 @@ struct Match {
 	float flips[BOARD_LEN]; // index references left hand tile
 	float explodes[BOARD_LEN];  // index references exploding tile, duh
 	float falls[BOARD_LEN]; // index references end y pos
-	float hitches[BOARD_LEN]; // index references hitched tile
 };
 
-void match_control(struct Match* match, struct Input* input, struct AudioContext* audio); 
-void match_tick(struct Match* match, float dt); 
-void match_draw(struct Match* match, struct DrawContext* ctx);
+void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
+void game_tick(struct Game* game, struct AudioContext* audio, float dt); 
+void game_draw(struct Game* game, struct DrawContext* ctx);
+void game_update_matches(struct Game* game, struct AudioContext* audio);
 
 void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y);
 uint8_t index_from_coords(uint8_t x, uint8_t y);
 void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete* pl);
 
-#endif // match_h_INCLUDED
+#endif // game_h_INCLUDED

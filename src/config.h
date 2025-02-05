@@ -10,6 +10,7 @@
 #define BOARD_W 8
 #define BOARD_H 17
 #define BOARD_LEN BOARD_W * BOARD_H
+#define TIME_EXPLODE 1
 
 // Paths
 #define PATH_ICON "icon.bmp"
