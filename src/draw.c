@@ -36,7 +36,34 @@ void draw_anim_flip(struct DrawContext* ctx, float t, uint8_t frames, struct IRe
     if(t >= 1) {
         t = 0.99;
     }
-
 	src.x += (uint8_t)(frames * t) * src.w;
 	draw_sprite_flip(ctx, src, x, y, pl, flip);
+}
+
+void draw_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl) {
+    uint8_t* c1 = (uint8_t*)&pl.primary;
+    SDL_SetTextureColorMod(ctx->atlas_primary,   c1[0], c1[1], c1[2]);
+
+	struct IRect src = SPR_PIXEL;
+	SDL_Rect s = (SDL_Rect){src.x, src.y, src.w, src.h};
+	SDL_Rect dleft = (SDL_Rect){rect.x, rect.y, 1, rect.h + 2};
+	SDL_Rect dright = (SDL_Rect){rect.x + rect.w + 1, rect.y, 1, rect.h + 2};
+	SDL_Rect dtop = (SDL_Rect){rect.x + 1, rect.y, rect.w, 1};
+	SDL_Rect dbottom = (SDL_Rect){rect.x + 1, rect.y + rect.h + 1, rect.w, 1};
+
+    SDL_RenderCopyEx(ctx->renderer, ctx->atlas_primary, &s, &dleft, 0, NULL, false);
+    SDL_RenderCopyEx(ctx->renderer, ctx->atlas_primary, &s, &dright, 0, NULL, false);
+    SDL_RenderCopyEx(ctx->renderer, ctx->atlas_primary, &s, &dtop, 0, NULL, false);
+   	SDL_RenderCopyEx(ctx->renderer, ctx->atlas_primary, &s, &dbottom, 0, NULL, false);
+}
+
+void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl) {
+    uint8_t* c1 = (uint8_t*)&pl.primary;
+    SDL_SetTextureColorMod(ctx->atlas_primary,   c1[0], c1[1], c1[2]);
+
+	struct IRect src = SPR_PIXEL;
+	SDL_Rect s = (SDL_Rect){src.x, src.y, src.w, src.h};
+	SDL_Rect d = (SDL_Rect){rect.x + 1, rect.y + 1, rect.w - 2, rect.h - 2};
+
+    SDL_RenderCopyEx(ctx->renderer, ctx->atlas_primary, &s, &d, 0, NULL, false);
 }

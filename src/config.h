@@ -8,7 +8,7 @@
 // Match config
 #define SHAPES_LEN 4
 #define BOARD_W 8
-#define BOARD_H 16
+#define BOARD_H 17
 #define BOARD_LEN BOARD_W * BOARD_H
 
 // Paths
@@ -17,6 +17,7 @@
 #define PATH_ATLAS_SECONDARY "atlas_secondary.bmp"
 
 // Sprites
+#define SPR_PIXEL (struct IRect){0, 32, 1, 1}
 #define SPR_TILE_MOVE_OFFSET 8 // Start of tile movement animation as offset from the tile sprite
 #define SPR_TILE_MOVE_FRAMES 3
 #define SPR_SQUARE  (struct IRect){0, 0, 8, 8}

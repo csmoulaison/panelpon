@@ -19,7 +19,7 @@ void match_control(struct Match* match, struct Input* input, struct AudioContext
 
     	if(cury == 255)        cury = 0;
     	if(curx == 255)        curx = 0;
-    	if(cury > BOARD_H - 1) cury = BOARD_H - 1;
+    	if(cury > BOARD_H - 2) cury = BOARD_H - 2;
     	if(curx > BOARD_W - 2) curx = BOARD_W - 2; // -2 because cursor is 2x1
 
     	uint8_t cursor_new = index_from_coords(curx, cury);
@@ -66,6 +66,7 @@ void match_control(struct Match* match, struct Input* input, struct AudioContext
 
 		match->flips[match->cursor] = 0;
 	}
+
 endflip:
 }
 
@@ -73,6 +74,32 @@ void match_tick(struct Match* match, float dt) {
 	// Todo movements
 	// - Tokens exploding - blocks until complete
 	// - Token generation / board movement - constant, offset++ until tile sized
+
+	// Move board up, generating new tiles as needed
+	match->yoff -= dt * 2;
+	if(match->yoff < 0) {
+		match->yoff += 8;
+
+		// Move everything up one tile, including events
+		if(match->cursor >= BOARD_W) {
+			match->cursor -= BOARD_W;
+		}
+		for(int y = 1; y < BOARD_H; y++) {
+			for(int x = 0; x < BOARD_W; x++) {
+    			uint8_t oldpos = y * BOARD_W + x;
+    			uint8_t newpos = oldpos - BOARD_W;
+
+				match->board[newpos] = match->board[oldpos];
+				match->flips[newpos] = match->flips[oldpos];
+				match->explodes[newpos] = match->explodes[oldpos];
+				match->falls[newpos] = match->falls[oldpos];
+				match->hitches[newpos] = match->hitches[oldpos];
+			}
+		}
+		for(int x = 0; x < BOARD_W; x++) {
+    		match->board[(BOARD_H - 1) * BOARD_W + x] = 1 + rand() % (SHAPES_LEN);
+		}
+	}
 
 	// Check for tile falling
 	for(uint8_t x = 0; x < BOARD_W; x++) {
@@ -108,7 +135,8 @@ void match_tick(struct Match* match, float dt) {
 
 void match_draw(struct Match* match, struct DrawContext* ctx) {
 	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
-	uint8_t boardy = LOGICAL_H / 2 - BOARD_H / 2 * 8;
+	uint8_t boardy_abs = LOGICAL_H / 2 - BOARD_H / 2 * 8;
+	uint8_t boardy = boardy_abs + match->yoff;
 
 	// Skip these tiles during conventional drawing
 	bool skips[BOARD_LEN];
@@ -199,6 +227,10 @@ void match_draw(struct Match* match, struct DrawContext* ctx) {
         	draw_sprite(ctx, SPR_CURSOR, curx - 1, cury - 1, PL_ALL_WHITE);
     	}
 	}
+
+	// Draw border
+	draw_fill_rect(ctx, (struct IRect){boardx, boardy_abs + BOARD_H * 8 - 1, BOARD_W * 8, 10}, PL_ALL_BLACK);
+	draw_rect(ctx, (struct IRect){boardx - 3, boardy_abs - 3, BOARD_W * 8 + 4, BOARD_H * 8 + 3}, PL_ALL_WHITE);
 }
 
 void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y) {

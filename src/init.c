@@ -5,7 +5,6 @@
 
 #include "config.h"
 
-#include<unistd.h>
 
 SDL_Surface* load_surface(const char* path) {
 	SDL_Surface* surf = SDL_LoadBMP(path);

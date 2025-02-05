@@ -11,11 +11,12 @@
 struct Match {
     // Board, including y offset for upwards movement
 	uint8_t board[BOARD_LEN];
-	float board_yoff;
+	float yoff;
 
 	// Cursor, including movement animation state
     uint8_t cursor;
     uint8_t cursor_anim_prev;
+
     float cursor_anim_t;
 
 	// Ongoing board events - some of these are gameplay significant, and some
