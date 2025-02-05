@@ -57,7 +57,8 @@ void game_control(struct Game* game, struct Input* input, struct AudioContext* a
 		struct Sound sound;
 		sound.priority = 1;
 
-    	if(game->board[game->cursor] == 0 && game->board[game->cursor + 1] == 0) {
+    	if((game->board[game->cursor] == 0 && game->board[game->cursor + 1] == 0)
+		|| game->explodes[game->cursor] < 1 || game->explodes[game->cursor + 1] < 1) {
     		sound.callback = snd_noflip;
     		sound_play(audio, sound);
         	goto endflip;
