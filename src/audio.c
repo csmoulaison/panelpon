@@ -2,6 +2,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "math.h"
 
 #define MAX_T_SECONDS 256
 
@@ -71,6 +72,7 @@ int audio_callback(const void* input, void* output, unsigned long frames_per_buf
     		} else {
         		stream[i] -= sound->amp;
     		}
+    		//stream[i] += sin(sound->t * 3.14159 * sound->freq) * sound->amp;
 		}
 
 		if(stream[i] > 0.99) stream[i] = 0.99;

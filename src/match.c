@@ -2,7 +2,7 @@
 
 #include "stdbool.h"
 #include "stdio.h"
-#include "test_sound.h"
+#include "sounds.h"
 
 void match_control(struct Match* match, struct Input* input, struct AudioContext* audio) {
     // Updated and used throughout function
@@ -31,7 +31,7 @@ void match_control(struct Match* match, struct Input* input, struct AudioContext
 
     		struct Sound sound;
     		sound.priority = 1;
-    		sound.callback = snd_dark;
+    		sound.callback = snd_move;
     		sound_play(audio, sound);
     	}
     }
@@ -42,12 +42,12 @@ void match_control(struct Match* match, struct Input* input, struct AudioContext
 		sound.priority = 1;
 
     	if(match->board[match->cursor] == 0 && match->board[match->cursor + 1] == 0) {
-    		sound.callback = snd_dark;
+    		sound.callback = snd_noflip;
     		sound_play(audio, sound);
         	goto endflip;
     	}
 
-		sound.callback = snd_upbeep;
+		sound.callback = snd_flip;
     	sound_play(audio, sound);
 
 		uint8_t tmp = match->board[match->cursor];
@@ -70,8 +70,7 @@ endflip:
 }
 
 void match_tick(struct Match* match, float dt) {
-	// Types of movement
-	// - Token falling - blocks associated token movements until complete
+	// Todo movements
 	// - Tokens exploding - blocks until complete
 	// - Token generation / board movement - constant, offset++ until tile sized
 

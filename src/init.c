@@ -3,7 +3,6 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-#include "test_sound.h"
 #include "config.h"
 
 #include<unistd.h>
@@ -67,7 +66,7 @@ void init(struct Context* ctx) {
     	}
 
     	PaStream* stream;
-    	e = Pa_OpenDefaultStream(&stream, 0, 1, paFloat32, SAMPLE_RATE, paFramesPerBufferUnspecified, audio_callback, &ctx->audio);
+    	e = Pa_OpenDefaultStream(&stream, 0, 1, paFloat32, SAMPLE_RATE, 128, audio_callback, &ctx->audio);
     	if(e != paNoError) {
     		printf("PortAudio error: %s\n", Pa_GetErrorText(e));
     		exit(1);
