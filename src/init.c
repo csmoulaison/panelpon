@@ -109,26 +109,5 @@ void init(struct Context* ctx) {
     	}
 	}
 
-	// Init game (this'll go somewhere else eventually, of course.
-	{
-    	struct Game* game = &ctx->game;
-    	game->yoff = 0;
-    	game->hitch = 1;
-
-    	game->cursor = 0;
-    	game->cursor_prev = game->cursor;
-    	game->cursor_anim_t = 1;
-
-    	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-    		game->tiles[i] = rand() % (SHAPES_LEN + 1);
-    		if(rand() % 2 == 0) game->tiles[i] = 0;
-    		game->flips[i] = 2;
-    		game->explodes[i] = 2;
-    		game->falls[i] = 2;
-    		game->buf_falls[i] = 2;
-    	}
-
-    	// Pause at beginning
-    	game->hitch = -10000;
-	}
+	game_init(&ctx->game);
 }

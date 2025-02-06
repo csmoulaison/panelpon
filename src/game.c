@@ -10,6 +10,26 @@
 // - How to signal that the bottom row is unselectable? All grey? Inverse? Kinda
 //   still needs to be clear what type of tile the thing is.
 
+void game_init(struct Game* game) {
+	game->yoff = 0;
+	game->hitch = 1;
+
+	game->cursor = 0;
+	game->cursor_prev = game->cursor;
+	game->cursor_anim_t = 1;
+
+	for(uint8_t i = 0; i < BOARD_LEN; i++) {
+		game->tiles[i] = rand() % (SHAPES_LEN + 1);
+		if(rand() % 2 == 0) game->tiles[i] = 0;
+		game->flips[i] = 2;
+		game->explodes[i] = 2;
+		game->falls[i] = 2;
+		game->buf_falls[i] = 2;
+	}
+
+	game->state = GAME_PRE;
+}
+
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio) {
     // Updated and used throughout function
 	uint8_t curx;
@@ -112,8 +132,15 @@ void game_tick(struct Game* game, struct AudioContext* audio, double dt) {
 		goto postmove;
 	}
 	
-	game->yoff -= dt * 3;
+	game->yoff -= dt * 4;
 	if(game->yoff < 0) {
+		for(uint8_t x = 0; x < BOARD_W; x++) {
+			if(game->tiles[0 * BOARD_W + x] != 0) {
+				game->state = GAME_POST;
+				return;
+			}
+		}
+    	
 		game->yoff += 8;
 
 		// Move everything up one tile, including events
@@ -190,6 +217,31 @@ postmove:
 }
 
 void game_draw(struct Game* game, struct DrawContext* ctx) {
+	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
+	uint8_t boardy_abs = LOGICAL_H / 2 - BOARD_H / 2 * 8;
+	uint8_t boardy = boardy_abs + game->yoff;
+	(void)boardy;
+
+	switch(game->state) {
+    	case GAME_ACTIVE:
+        	game_draw_active(game, ctx);
+        	break;
+    	case GAME_PRE:
+        	game_draw_pre(game, ctx);
+        	break;
+    	case GAME_POST:
+        	game_draw_post(game, ctx);
+        	break;
+        default:
+            break;
+	}
+
+	// Draw border
+	draw_fill_rect(ctx, (struct IRect){boardx, boardy_abs + BOARD_H * 8 - 1, BOARD_W * 8, 10}, PL_ALL_BLACK);
+	draw_rect(ctx, (struct IRect){boardx - 3, boardy_abs - 3, BOARD_W * 8 + 4, BOARD_H * 8 + 3}, PL_ALL_WHITE);
+}
+
+void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
 	uint8_t boardy_abs = LOGICAL_H / 2 - BOARD_H / 2 * 8;
 	uint8_t boardy = boardy_abs + game->yoff;
@@ -295,10 +347,42 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 		//if(falling(game, i)) draw_sprite(ctx, SPR_DEBUG_1, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
 		if(game->buf_falls[i] < 1) draw_sprite(ctx, SPR_DEBUG_1, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
 	}
+}
 
-	// Draw border
-	draw_fill_rect(ctx, (struct IRect){boardx, boardy_abs + BOARD_H * 8 - 1, BOARD_W * 8, 10}, PL_ALL_BLACK);
-	draw_rect(ctx, (struct IRect){boardx - 3, boardy_abs - 3, BOARD_W * 8 + 4, BOARD_H * 8 + 3}, PL_ALL_WHITE);
+void game_draw_pre(struct Game* game, struct DrawContext* ctx) {
+	(void)game;
+	(void)ctx;
+}
+
+void game_draw_post(struct Game* game, struct DrawContext* ctx) {
+	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
+	uint8_t boardy_abs = LOGICAL_H / 2 - BOARD_H / 2 * 8;
+	uint8_t boardy = boardy_abs + game->yoff;
+
+    for(uint8_t i = 0; i < BOARD_LEN; i++) {  
+		if(game->tiles[i] == 0) {
+    		continue;
+		}
+        
+    	struct IRect spr;
+    	struct Pallete pl;
+    	spr_from_index(game->tiles, i, &spr, &pl);
+
+		uint8_t x;
+		uint8_t y;
+		coords_from_index(i, &x, &y);
+
+		// Offset y if currently falling
+		uint8_t yoff = 0;
+        if(game->falls[i] < 1) {
+            yoff = 8 * game->falls[i] - 8;
+        }
+
+        if((int)(game->hitch * 2) % 2 != 0) {
+        	pl = PL_ALL_WHITE;
+		}
+        draw_sprite(ctx, spr, boardx + x * 8, boardy + y * 8 + yoff, pl);
+	}
 }
 
 void game_update_matches(struct Game* game, struct AudioContext* audio) {

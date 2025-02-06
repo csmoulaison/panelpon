@@ -15,11 +15,24 @@ void loop(struct Context* ctx) {
 	input_poll(&ctx->input);
 
 	// Simulate
-	if(ctx->game.hitch > -1) {
-    	game_control(&ctx->game, &ctx->input, &ctx->audio);
-    	game_tick(&ctx->game, &ctx->audio, dt);
-	} else if(ctx->input.select.just_pressed) {
-    	ctx->game.hitch = 1;
+	switch(ctx->game.state) {
+    	case GAME_PRE:
+        	if(ctx->input.select.just_pressed) {
+            	ctx->game.state = GAME_ACTIVE;
+        	}
+        	break;
+        case GAME_ACTIVE:
+        	game_control(&ctx->game, &ctx->input, &ctx->audio);
+        	game_tick(&ctx->game, &ctx->audio, dt);
+            break;
+		case GAME_POST:
+    		ctx->game.hitch += dt;
+        	if(ctx->input.select.just_pressed) {
+            	game_init(&ctx->game);
+        	}
+    		break;
+    	default:
+        	break;
 	}
 
 	// Audio

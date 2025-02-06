@@ -8,7 +8,15 @@
 #include "draw.h"
 #include "audio.h"
 
+enum GameState {
+    GAME_PRE,
+    GAME_ACTIVE,
+    GAME_POST
+};
+
 struct Game {
+    enum GameState state;
+
     // Board, including y offset for upwards movement
 	uint8_t tiles[BOARD_LEN];
 	float yoff;
@@ -30,9 +38,14 @@ struct Game {
 	float buf_falls[BOARD_LEN]; // index references start y pos
 };
 
+void game_init(struct Game* game);
+
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
 void game_tick(struct Game* game, struct AudioContext* audio, double dt); 
 void game_draw(struct Game* game, struct DrawContext* ctx);
+void game_draw_active(struct Game* game, struct DrawContext* ctx);
+void game_draw_pre(struct Game* game, struct DrawContext* ctx);
+void game_draw_post(struct Game* game, struct DrawContext* ctx);
 void game_update_matches(struct Game* game, struct AudioContext* audio);
 
 bool empty(struct Game* game, uint8_t i);
