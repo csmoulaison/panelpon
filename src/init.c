@@ -59,11 +59,6 @@ void init(struct Context* ctx) {
 		struct AudioContext* audio = &ctx->audio;
 		for(int i = 0; i < VOICES_LEN; i++) {
 			audio->voices[i].soundstack_len = 0;
-			/*
-			for(int j = 0; j < SOUNDSTACK_SIZE; j++) {
-
-			}
-			*/
 		}
 
     	PaError e = Pa_Initialize();
@@ -130,7 +125,7 @@ void init(struct Context* ctx) {
     		game->flips[i] = 2;
     		game->explodes[i] = 2;
     		game->falls[i] = 2;
-    		game->buf_falls[i] = false;
+    		game->buf_falls[i] = 2;
     	}
 
     	// Pause at beginning

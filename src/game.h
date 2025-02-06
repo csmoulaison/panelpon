@@ -27,7 +27,7 @@ struct Game {
 	float flips[BOARD_LEN]; // index references left hand tile
 	float explodes[BOARD_LEN];  // index references exploding tile, duh
 	float falls[BOARD_LEN]; // index references end y pos
-	bool buf_falls[BOARD_LEN]; // index references start y pos
+	float buf_falls[BOARD_LEN]; // index references start y pos
 };
 
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
@@ -39,10 +39,6 @@ bool empty(struct Game* game, uint8_t i);
 bool falling(struct Game* game, uint8_t i);
 bool flipping(struct Game* game, uint8_t i);
 bool exploding(struct Game* game, uint8_t i);
-/*
-bool matchable(struct Game* game, uint8_t i);
-bool matching(struct Game* game, uint8_t i, uint8_t match);
-*/
 
 void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y);
 uint8_t index_from_coords(uint8_t x, uint8_t y);
