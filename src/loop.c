@@ -18,7 +18,6 @@ void loop(struct Context* ctx) {
 	if(ctx->game.hitch > -1) {
     	game_control(&ctx->game, &ctx->input, &ctx->audio);
     	game_tick(&ctx->game, &ctx->audio, dt);
-    	game_draw(&ctx->game, &ctx->draw);
 	} else if(ctx->input.select.just_pressed) {
     	ctx->game.hitch = 1;
 	}

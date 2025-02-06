@@ -5,19 +5,10 @@
 #include "sounds.h"
 
 // TODO: Fixes/improvements
-// - Block flips on: falls, explodes
-// - Ignore matches on: falls, explodes - hmm, same thing
-// - Prevent gaps from being crossed - really, just need to make sure that if a
-//   flip completes with an empty tile below, there is no logic which has any
-//   time to act on that tile - in other words, put the tile in a falling state
-//   at the same site as its flip completes, unless you can determine it will
-//   get caught at the right moment, and maintainably so!
-//     (This also prevents flips over gaps which immediately result in a match.
 // - Implement priority system to sounds so we can at least see what a less
 //   chaotic soundscape would be like. Kinda cool as is, though. Kinda fucked.
 // - How to signal that the bottom row is unselectable? All grey? Inverse? Kinda
 //   still needs to be clear what type of tile the thing is.
-// - Make a tile for each 255 combo. (255, 255, 0), (255, 0, 255), (0, 255, 255)
 
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio) {
     // Updated and used throughout function
@@ -40,7 +31,7 @@ void game_control(struct Game* game, struct Input* input, struct AudioContext* a
     	uint8_t cursor_new = index_from_coords(curx, cury);
 		// Keep track of the previous cursor position for animation
     	if(cursor_new != game->cursor) {
-    		game->cursor_anim_prev = game->cursor;
+    		game->cursor_prev = game->cursor;
     		game->cursor_anim_t = 0;
     		game->cursor = cursor_new;
 
@@ -57,19 +48,38 @@ void game_control(struct Game* game, struct Input* input, struct AudioContext* a
 		struct Sound sound;
 		sound.priority = 1;
 
-    	if((game->board[game->cursor] == 0 && game->board[game->cursor + 1] == 0)
-		|| game->explodes[game->cursor] < 1 || game->explodes[game->cursor + 1] < 1) {
+		// Don't allow flip if both cursor tiles empty, or either one is exploding or
+		// part of a fall.
+    	if((empty(game, game->cursor) && empty(game, game->cursor + 1)) 
+    	|| game->buf_falls[game->cursor] || game->buf_falls[game->cursor + 1] 
+    	|| exploding(game, game->cursor) || exploding(game, game->cursor + 1) || falling(game, game->cursor)) {
     		sound.callback = snd_noflip;
     		sound_play(audio, sound);
         	goto endflip;
     	}
 
+    	// Don't allow flip if a cursor tile is empty with a tile somewhere above it.
+    	for(int i = 0; i < 2; i++) {
+        	uint8_t check_cursor = game->cursor + i;
+        	if(!empty(game, check_cursor)) {
+            	continue;
+        	}
+			for(int j = 1; j < BOARD_H; j++) {
+				if(check_cursor / BOARD_W - j < 0) {
+    				break;
+				}
+				if(!empty(game, check_cursor - j * BOARD_W)) {
+					goto endflip;
+				}
+			}
+    	}
+
 		sound.callback = snd_flip;
     	sound_play(audio, sound);
 
-		uint8_t tmp = game->board[game->cursor];
-		game->board[game->cursor] = game->board[game->cursor + 1];
-		game->board[game->cursor + 1] = tmp;
+		uint8_t tmp = game->tiles[game->cursor];
+		game->tiles[game->cursor] = game->tiles[game->cursor + 1];
+		game->tiles[game->cursor + 1] = tmp;
 
 		// Cancel adjacent flip animations
 		if(curx > 0) {
@@ -83,21 +93,26 @@ void game_control(struct Game* game, struct Input* input, struct AudioContext* a
 
 		game->flips[game->cursor] = 0;
 
+		for(int i = 0; i < 2; i++) {
+    		if(empty(game, game->cursor + i + BOARD_W)) {
+				game->buf_falls[game->cursor + i] = true;
+    		}
+		}
 	}
 
 endflip:
 }
 
-void game_tick(struct Game* game, struct AudioContext* audio, float dt) {
+void game_tick(struct Game* game, struct AudioContext* audio, double dt) {
 	bool update_matches = false;
 
-	// Move board up, generating new tiles as needed
+	// Move tiles up, generating new tiles as needed
 	game->hitch += dt;
 	if(game->hitch < 1) {
 		goto postmove;
 	}
 	
-	game->yoff -= dt * 4;
+	game->yoff -= dt * 6;
 	if(game->yoff < 0) {
 		game->yoff += 8;
 
@@ -105,25 +120,44 @@ void game_tick(struct Game* game, struct AudioContext* audio, float dt) {
 		if(game->cursor >= BOARD_W) {
 			game->cursor -= BOARD_W;
 		}
-		for(int y = 1; y < BOARD_H; y++) {
-			for(int x = 0; x < BOARD_W; x++) {
+		for(uint8_t y = 1; y < BOARD_H; y++) {
+			for(uint8_t x = 0; x < BOARD_W; x++) {
     			uint8_t oldpos = y * BOARD_W + x;
     			uint8_t newpos = oldpos - BOARD_W;
 
-				game->board[newpos]    = game->board[oldpos];
+				game->tiles[newpos]    = game->tiles[oldpos];
 				game->flips[newpos]    = game->flips[oldpos];
 				game->explodes[newpos] = game->explodes[oldpos];
 				game->falls[newpos]    = game->falls[oldpos];
 			}
 		}
-		for(int x = 0; x < BOARD_W; x++) {
-    		game->board[(BOARD_H - 1) * BOARD_W + x] = 1 + rand() % (SHAPES_LEN);
+		for(uint8_t x = 0; x < BOARD_W; x++) {
+    		game->tiles[(BOARD_H - 1) * BOARD_W + x] = 1 + rand() % (SHAPES_LEN);
 		}
 
 		update_matches = true;
 	}
 
 postmove:
+
+	// Update event ticks
+	for(uint8_t i = 0; i < BOARD_LEN; i++) {
+    	float prev_explode = game->explodes[i];
+		game->explodes[i] += dt;
+		if(game->explodes[i] >= 1 && prev_explode < 1) {
+			game->tiles[i] = 0;
+		}
+
+    	float prev_flip = game->flips[i];
+		game->flips[i] += dt * 6;
+
+    	float prev_fall = game->falls[i];
+		game->falls[i] += dt * 10;
+
+		if((game->flips[i] >= 1 && prev_flip < 1) || (game->falls[i] >= 1 && prev_fall < 1)) {
+    		update_matches = true;
+		}
+	}
 
 	// Check for tile falling
 	for(uint8_t x = 0; x < BOARD_W; x++) {
@@ -132,39 +166,20 @@ postmove:
 
         	// Skip anything which isn't a non-empty tile on top of an empty tile,
         	// also excluding falls which are already in motion on the upper tile.
-    		if(game->falls[i - BOARD_W]     < 1 
-    		|| game->flips[i - BOARD_W]     < 1 
-    		|| game->flips[i - BOARD_W - 1] < 1
-    		|| game->board[i]           != 0 
-    		|| game->board[i - BOARD_W] == 0) {
+    		if(falling(game, i - BOARD_W) || flipping(game, i - BOARD_W) || flipping(game, i) || exploding(game, i - BOARD_W)
+    		|| game->tiles[i] != 0 || game->tiles[i - BOARD_W] == 0) {
 				continue;
     		}
 
-			game->board[i] = game->board[i - BOARD_W];
-			game->board[i - BOARD_W] = 0;
+			game->tiles[i] = game->tiles[i - BOARD_W];
+			game->tiles[i - BOARD_W] = 0;
 			game->falls[i] = 0;
+			game->buf_falls[i - BOARD_W] = false;
     	}
 	}
 
-	// Update event ticks
-	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-    	float prev_explode = game->explodes[i];
-		game->explodes[i] += dt;
-		if(game->explodes[i] >= 1 && prev_explode < 1) {
-			game->board[i] = 0;
-		}
-
-    	float prev_flip = game->flips[i];
-    	float prev_fall = game->falls[i];
-		game->flips[i]    += dt * 4;
-		game->falls[i]    += dt * 6;
-		if((game->flips[i] >= 1 && prev_flip < 1) || (game->falls[i] >= 1 && prev_fall < 1)) {
-    		update_matches = true;
-		}
-	}
-
 	// Tick cursor
-	game->cursor_anim_t += dt * 12;
+	game->cursor_anim_t += (float)dt * 12;
 
 	if(update_matches) {
 		game_update_matches(game, audio);
@@ -176,20 +191,18 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 	uint8_t boardy_abs = LOGICAL_H / 2 - BOARD_H / 2 * 8;
 	uint8_t boardy = boardy_abs + game->yoff;
 
-	// Skip these tiles during conventional drawing
+	// Skip empty tiles during tile draw below
 	bool skips[BOARD_LEN];
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-    	skips[i] = game->board[i] == 0;
+    	skips[i] = game->tiles[i] == 0;
 	}
 
 	// Draw flips
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-		if(game->flips[i] > 0.5) {
+		if(game->flips[i] > 0.75) {
     		continue;
 		}
     	
-    	// left and right refer to the new tile positions, which might be confusing,
-    	// but reflects the current truth.
     	uint8_t flipx;
     	uint8_t flipy;
     	coords_from_index(i, &flipx, &flipy);
@@ -198,25 +211,28 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
     	struct Pallete pl;
 		float anim_t = game->flips[i] * 2;
 
-		if(game->board[i] != 0) {
-        	spr_from_index(game->board, i, &spr, &pl);
+		if(game->tiles[i] != 0) {
+        	spr_from_index(game->tiles, i, &spr, &pl);
         	spr.w *= 2;
         	spr.x += SPR_TILE_MOVE_OFFSET;
         	draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAMES, spr, boardx + flipx * 8, boardy + flipy * 8, pl, true);
 		}
 
-		if(game->board[i + 1] != 0) {
-        	spr_from_index(game->board, i + 1, &spr, &pl);
+		// We assume i + 1 is safe, because flips never appear at a right edge tile
+		if(game->tiles[i + 1] != 0) {
+        	spr_from_index(game->tiles, i + 1, &spr, &pl);
         	spr.w *= 2;
         	spr.x += SPR_TILE_MOVE_OFFSET;
         	draw_anim(ctx, anim_t, SPR_TILE_MOVE_FRAMES, spr, boardx + flipx * 8, boardy + flipy * 8, pl);
 		}
 
+		// Skip flipping tiles during tile draw below
     	skips[i] = true;
+    	// See above on safety of i + 1
     	skips[i + 1] = true;
 	}
 
-	// Tiles
+	// Tile draw - skipping skips
     for(uint8_t i = 0; i < BOARD_LEN; i++) {
 		if(skips[i]) {
     		continue;
@@ -224,7 +240,7 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
         
     	struct IRect spr;
     	struct Pallete pl;
-    	spr_from_index(game->board, i, &spr, &pl);
+    	spr_from_index(game->tiles, i, &spr, &pl);
 
 		uint8_t x;
 		uint8_t y;
@@ -236,7 +252,7 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
             yoff = 8 * game->falls[i] - 8;
         }
 
-        if(game->explodes[i] < 1) {
+        if(game->explodes[i] < 1 && (int)(game->explodes[i] * 16) % 2 != 0) {
         	pl = PL_ALL_WHITE;
 		}
         draw_sprite(ctx, spr, boardx + x * 8, boardy + y * 8 + yoff, pl);
@@ -251,16 +267,16 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
     	cury = boardy + cury * 8;
     	if(game->cursor_anim_t < 1) {
         	uint8_t frames = SPR_CURSOR_MOVE_FRAMES;
-    		if(game->cursor_anim_prev == game->cursor + 1) {
+    		if(game->cursor_prev == game->cursor + 1) {
     			struct IRect spr = SPR_CURSOR_MOVE_R;
     			draw_anim_flip(ctx, game->cursor_anim_t, frames, spr, curx - 2, cury - 1, PL_ALL_WHITE, true);
-    		} else if(game->cursor_anim_prev == game->cursor - 1) {
+    		} else if(game->cursor_prev == game->cursor - 1) {
 				struct IRect spr = SPR_CURSOR_MOVE_R;
     			draw_anim(ctx, game->cursor_anim_t, frames, spr, curx - 9, cury - 1, PL_ALL_WHITE);
-    		} else if(game->cursor_anim_prev == game->cursor - BOARD_W) {
+    		} else if(game->cursor_prev == game->cursor - BOARD_W) {
 				struct IRect spr = SPR_CURSOR_MOVE_D;
     			draw_anim(ctx, game->cursor_anim_t, frames, spr, curx - 1, cury - 9, PL_ALL_WHITE);
-    		} else if(game->cursor_anim_prev == game->cursor + BOARD_W) {
+    		} else if(game->cursor_prev == game->cursor + BOARD_W) {
 				struct IRect spr = SPR_CURSOR_MOVE_D;
     			draw_anim_flip(ctx, game->cursor_anim_t, frames, spr, curx - 1, cury - 2, PL_ALL_WHITE, 2);
     		}
@@ -269,59 +285,138 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
     	}
 	}
 
+	// Draw debug gizmos
+	for(int i = 0; i < BOARD_LEN; i++) {
+		//if(flipping(game, i)) draw_sprite(ctx, SPR_DEBUG_1, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
+		//if(exploding(game, i)) draw_sprite(ctx, SPR_DEBUG_2, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
+		//if(falling(game, i)) draw_sprite(ctx, SPR_DEBUG_3, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
+		//if(matchable(game, i)) draw_sprite(ctx, SPR_DEBUG_1, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
+	}
+
 	// Draw border
 	draw_fill_rect(ctx, (struct IRect){boardx, boardy_abs + BOARD_H * 8 - 1, BOARD_W * 8, 10}, PL_ALL_BLACK);
 	draw_rect(ctx, (struct IRect){boardx - 3, boardy_abs - 3, BOARD_W * 8 + 4, BOARD_H * 8 + 3}, PL_ALL_WHITE);
 }
 
 void game_update_matches(struct Game* game, struct AudioContext* audio) {
-    bool match_found = false;
+    /*
+	bool matched[BOARD_LEN];
+	for(int i = 0; i < BOARD_LEN; i++) {
+    	matched[i] = false;
+	}
 
+    bool matches_found = false;
+	for(uint8_t i = 0; i < BOARD_LEN; i++) {
+		if(matched[i]) {
+    		continue;
+		}
+    	
+		uint8_t tile = game->tiles[i];
+		if(tile == 0) {
+    		continue;
+		}
+
+		// Check x and continue if a match is found
+		uint8_t x = BOARD_LEN % i;
+		uint8_t matches = 0;
+    	uint8_t off = 0;
+		while(x + off < BOARD_W) {
+    		uint8_t check = i + off;
+			if(game->tiles[check] != tile || exploding(game, check) || falling(game, check) || game->buf_falls[check] || matched[check]) {
+				break;
+			}
+			matches++;
+			off++;
+		}
+		if(matches >= 3) {
+			for(uint8_t j = 0; j < matches; j++) {
+				game->explodes[x + j] = 0;
+				matched[x + j] = true;
+			}
+			matches_found = true;
+			continue;
+		}
+
+		// Check y - ONLY proceeds if NO MATCH was found on x axis
+		uint8_t y = BOARD_LEN / i;
+		matches = 0;
+    	off = 0;
+		while(y + off < BOARD_H - 1) {
+    		uint8_t check = i + BOARD_W * off;
+			if(game->tiles[check] != tile || exploding(game, check) || falling(game, check) || game->buf_falls[check] || matched[check]) {
+				break;
+			}
+			matches++;
+			off++;
+		}
+		if(matches >= 3) {
+			for(uint8_t j = 0; j < matches; j++) {
+				game->explodes[x + BOARD_W * j] = 0;
+				matched[x + BOARD_W * j] = true;
+			}
+   			matches_found = true;
+		}
+	}
+	*/
+
+    bool matches_found = false;
 	// Horizontal matches
 	for(uint8_t y = 0; y < BOARD_H - 1; y++) {
-		for(uint8_t x = 1; x < BOARD_W - 1; x++) {
-			uint8_t check_tile = game->board[y * BOARD_W + x - 1];
-			if(check_tile == 0) {
+		for(uint8_t x = 0; x < BOARD_W - 1; x++) {
+			uint8_t tile = game->tiles[y * BOARD_W + x];
+			if(tile == 0) {
 				continue;
 			}
 			
-			uint8_t match_count = 1;
-			while(x < BOARD_W && game->board[y * BOARD_W + x] == check_tile) {
-				match_count++;
-				x++;
-			}
-			if(match_count >= 3) {
-    			match_found = true;
-				for(uint8_t matchx = x; matchx > x - match_count; matchx--) {
-					game->explodes[y * BOARD_W + matchx - 1] = 0;
-				}
-			}
+			uint8_t matches = 0;
+			uint8_t off = 0;
+			while(x + off < BOARD_W) {
+        		uint8_t check = y * BOARD_W + x + off;
+    			if(game->tiles[check] != tile || exploding(game, check) || falling(game, check) || game->buf_falls[check]) {
+    				break;
+    			}
+    			matches++;
+    			off++;
+    		}
+    		if(matches >= 3) {
+    			for(uint8_t i = 0; i < matches; i++) {
+    				game->explodes[y * BOARD_W + x + i] = 0;
+    			}
+    			matches_found = true;
+    		}
+    		if(off == 0) off++;
+    		x += off - 1;
 		}
 	}
-	// Vertical matches
 	for(uint8_t x = 0; x < BOARD_W; x++) {
-		for(uint8_t y = 1; y < BOARD_H - 2; y++) {
-			uint8_t check_tile = game->board[(y - 1) * BOARD_W + x];
-			if(check_tile == 0) {
+		for(uint8_t y = 0; y < BOARD_H - 2; y++) {
+			uint8_t tile = game->tiles[y * BOARD_W + x];
+			if(tile == 0) {
 				continue;
 			}
 			
-			uint8_t match_count = 1;
-			while(y < BOARD_H - 1 && game->board[y * BOARD_W + x] == check_tile) {
-				match_count++;
-				y++;
-			}
-			if(match_count >= 3) {
-    			match_found = true;
-				for(uint8_t matchy = y; matchy > y - match_count; matchy--) {
-					game->explodes[(matchy - 1) * BOARD_W + x] = 0;
-				}
-			}
+			uint8_t matches = 0;
+			uint8_t off = 0;
+			while(y + off < BOARD_H - 1) {
+        		uint8_t check = (y + off) * BOARD_W + x;
+    			if(game->tiles[check] != tile || exploding(game, check) || falling(game, check) || game->buf_falls[check]) {
+    				break;
+    			}
+    			matches++;
+    			off++;
+    		}
+    		if(matches >= 3) {
+    			for(uint8_t i = 0; i < matches; i++) {
+    				game->explodes[(y + i) * BOARD_W + x] = 0;
+    			}
+    			matches_found = true;
+    		}
+    		if(off == 0) off++;
+    		y += off - 1;
 		}
 	}
 
-	if(match_found) {
-		game->hitch = 0;
+	if(matches_found) {
 		game->hitch = 0;
 
 		struct Sound sound;
@@ -330,6 +425,34 @@ void game_update_matches(struct Game* game, struct AudioContext* audio) {
     	sound_play(audio, sound);
 	}
 }
+
+bool empty(struct Game* game, uint8_t i) {
+	return game->tiles[i] < 1;
+}
+
+bool flipping(struct Game* game, uint8_t i) {
+    bool flipping = game->flips[i] < 1;
+    return flipping || (i % BOARD_W != BOARD_W - 1 && game->flips[i - 1] < 1);
+}
+
+bool exploding(struct Game* game, uint8_t i) {
+	return game->explodes[i] < 1;
+}
+
+bool falling(struct Game* game, uint8_t i) {
+    bool falling = game->falls[i] < 1;
+    return falling || (i / BOARD_W != 0 && game->falls[i - BOARD_W] < 1);
+}
+
+/*
+bool matchable(struct Game* game, uint8_t i) {
+    return !exploding(game, i) && !falling(game, i) && !game->buf_falls[i];
+}
+
+bool matching(struct Game* game, uint8_t i, uint8_t match) {
+	return matchable(game, match) && match == game->tiles[i];
+}
+*/
 
 void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y) {
 	*x = i % BOARD_W;
@@ -357,6 +480,14 @@ void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete
         case 4:
             *spr = SPR_CROSS;
             *pl = PL_PURPLE;
+            break;
+        case 5:
+            *spr = SPR_TRIANGLE;
+            *pl = PL_YELLOW;
+            break;
+        case 6:
+            *spr = SPR_CAPSULE;
+            *pl = PL_CYAN;
             break;
         default:
             break;

@@ -10,30 +10,39 @@
 
 struct Game {
     // Board, including y offset for upwards movement
-	uint8_t board[BOARD_LEN];
+	uint8_t tiles[BOARD_LEN];
 	float yoff;
 	float hitch;
 
 	// Cursor, including movement animation state
     uint8_t cursor;
-    uint8_t cursor_anim_prev;
-
-    float cursor_anim_t;
+    uint8_t cursor_prev;
+    double cursor_anim_t;
 
 	// Ongoing board events - some of these are gameplay significant, and some
 	// are only for animation.
 	// 
-	// The indices directly equate to the board indices, and the value is the t
+	// The indices directly equate to the tiles indices, and the value is the t
 	// value between 0 and 1, > 1 signifying an inactive event.
 	float flips[BOARD_LEN]; // index references left hand tile
 	float explodes[BOARD_LEN];  // index references exploding tile, duh
 	float falls[BOARD_LEN]; // index references end y pos
+	bool buf_falls[BOARD_LEN]; // index references start y pos
 };
 
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
-void game_tick(struct Game* game, struct AudioContext* audio, float dt); 
+void game_tick(struct Game* game, struct AudioContext* audio, double dt); 
 void game_draw(struct Game* game, struct DrawContext* ctx);
 void game_update_matches(struct Game* game, struct AudioContext* audio);
+
+bool empty(struct Game* game, uint8_t i);
+bool falling(struct Game* game, uint8_t i);
+bool flipping(struct Game* game, uint8_t i);
+bool exploding(struct Game* game, uint8_t i);
+/*
+bool matchable(struct Game* game, uint8_t i);
+bool matching(struct Game* game, uint8_t i, uint8_t match);
+*/
 
 void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y);
 uint8_t index_from_coords(uint8_t x, uint8_t y);

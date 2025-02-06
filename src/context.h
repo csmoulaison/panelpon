@@ -16,9 +16,9 @@ struct Context {
 	uint64_t time_last;
 	uint64_t time_now;
 
+	struct Input input;
     struct DrawContext draw;
     struct AudioContext audio;
-	struct Input input;
 	struct Game game;
 };
 

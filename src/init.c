@@ -57,9 +57,13 @@ void init(struct Context* ctx) {
 	// Init audio context
 	{
 		struct AudioContext* audio = &ctx->audio;
-
 		for(int i = 0; i < VOICES_LEN; i++) {
-    		audio->voices[i].soundstack_len = 0;
+			audio->voices[i].soundstack_len = 0;
+			/*
+			for(int j = 0; j < SOUNDSTACK_SIZE; j++) {
+
+			}
+			*/
 		}
 
     	PaError e = Pa_Initialize();
@@ -102,6 +106,7 @@ void init(struct Context* ctx) {
     	map_scancode_to_button(input, SDL_SCANCODE_LEFT,   &input->left);
     	map_scancode_to_button(input, SDL_SCANCODE_RIGHT,  &input->right);
 
+    	input->quit_event = false;
     	for(int i = 0; i < input->mapped_btns_len; i++) {
 			input->mapped_btns[i]->just_pressed = false;
 			input->mapped_btns[i]->just_released = false;
@@ -112,14 +117,23 @@ void init(struct Context* ctx) {
 	// Init game (this'll go somewhere else eventually, of course.
 	{
     	struct Game* game = &ctx->game;
+    	game->yoff = 0;
+    	game->hitch = 1;
+
     	game->cursor = 0;
+    	game->cursor_prev = game->cursor;
+    	game->cursor_anim_t = 1;
+
     	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-    		game->board[i] = rand() % (SHAPES_LEN + 1);
-    		if(rand() % 2 == 0) game->board[i] = 0;
+    		game->tiles[i] = rand() % (SHAPES_LEN + 1);
+    		if(rand() % 2 == 0) game->tiles[i] = 0;
     		game->flips[i] = 2;
     		game->explodes[i] = 2;
     		game->falls[i] = 2;
+    		game->buf_falls[i] = false;
     	}
+
+    	// Pause at beginning
     	game->hitch = -10000;
 	}
 }

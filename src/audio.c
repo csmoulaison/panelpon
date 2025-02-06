@@ -3,6 +3,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "math.h"
+#include "sounds.h"
 
 #define MAX_T_SECONDS 256
 
@@ -41,11 +42,16 @@ int audio_callback(const void* input, void* output, unsigned long frames_per_buf
     struct AudioContext* ctx = (struct AudioContext*)userdata;
     float* stream = (float*)output;
 
+    float t_per_frame = (1.0 / SAMPLE_RATE);
+
 	for(int i = 0; i < VOICES_LEN; i++) {
     	if(ctx->voices[i].soundstack_len == 0) {
         	continue;
     	}
     	struct Sound* sound = &ctx->voices[i].soundstack[ctx->voices[i].soundstack_len - 1];
+    	for(int j = 0; j < ctx->voices[i].soundstack_len - 1; j++) {
+			ctx->voices[i].soundstack[j].t += t_per_frame * frames_per_buf;
+    	}
 
     	if(sound->t > MAX_T_SECONDS) {
     		sound->t -= MAX_T_SECONDS;
@@ -65,7 +71,7 @@ int audio_callback(const void* input, void* output, unsigned long frames_per_buf
     			continue;
 			}
     		
-    		sound->t += (1.0 / SAMPLE_RATE);
+    		sound->t += t_per_frame;
 
     		if((uint32_t)(sound->t * sound->freq) % 2 == 0) {
         		stream[i] += sound->amp;
@@ -90,8 +96,10 @@ void sound_play(struct AudioContext* ctx, struct Sound sound) {
 
 	// TODO: Better voice selection
     struct Voice* voice = &ctx->voices[0];
+    if(sound.callback == snd_match) {
+        voice = &ctx->voices[1];
+    }
 
-    // TODO: Don't overflow and check priority
     voice->soundstack[voice->soundstack_len] = sound;
     voice->soundstack_len++;
 }

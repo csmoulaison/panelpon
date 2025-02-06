@@ -37,9 +37,9 @@ void snd_move(struct Sound* sound) {
 void snd_match(struct Sound* sound) {
 	float len = 0.3;
 	float tup = sound->t / len;
-    float tmod = sin((sound->t * PI * 4) / len);
+    float tmod = sin((sound->t * PI * 8) / len);
 
-	sound->freq = 400 + tmod * 400 + tup * 400;
+	sound->freq = 400 + tmod * 400 + tup * 800;
 	sound->amp = 0.00 + tmod * 0.3;
 
 	if(sound->t > len) sound->active = false;

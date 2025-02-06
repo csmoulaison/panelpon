@@ -9,6 +9,8 @@
 #define PL_RED 		 (struct Pallete){0xFF0000, 0xFFFFFF}
 #define PL_GREEN     (struct Pallete){0x00FF00, 0xFFFFFF}
 #define PL_PURPLE    (struct Pallete){0xFF00FF, 0xFFFFFF}
+#define PL_YELLOW    (struct Pallete){0xFFFF00, 0xFFFFFF}
+#define PL_CYAN      (struct Pallete){0x00FFFF, 0xFFFFFF}
 
 struct Pallete {
     uint32_t primary;
