@@ -5,8 +5,6 @@
 #include "sounds.h"
 
 // TODO: Fixes/improvements
-// - Implement priority system to sounds so we can at least see what a less
-//   chaotic soundscape would be like. Kinda cool as is, though. Kinda fucked.
 // - How to signal that the bottom row is unselectable? All grey? Inverse? Kinda
 //   still needs to be clear what type of tile the thing is.
 
@@ -25,6 +23,10 @@ void game_init(struct Game* game) {
 		game->explodes[i] = 2;
 		game->falls[i] = 2;
 		game->buf_falls[i] = 2;
+	}
+
+	for(uint8_t x = 0; x < BOARD_W; x++) {
+		game->tiles[x] = 0;
 	}
 
 	game->state = GAME_PRE;
@@ -132,11 +134,15 @@ void game_tick(struct Game* game, struct AudioContext* audio, double dt) {
 		goto postmove;
 	}
 	
-	game->yoff -= dt * 4;
+	game->yoff -= dt * 1;
 	if(game->yoff < 0) {
 		for(uint8_t x = 0; x < BOARD_W; x++) {
 			if(game->tiles[0 * BOARD_W + x] != 0) {
 				game->state = GAME_POST;
+        		struct Sound sound;
+        		sound.priority = 1;
+        		sound.callback = snd_lose;
+        		sound_play(audio, sound);
 				return;
 			}
 		}

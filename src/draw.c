@@ -2,11 +2,11 @@
 
 #include "stdio.h"
 
-void draw_clear(struct DrawContext* ctx) {
+inline void draw_clear(struct DrawContext* ctx) {
 	SDL_RenderClear(ctx->renderer);
 }
 
-void draw_present(struct DrawContext* ctx) {
+inline void draw_present(struct DrawContext* ctx) {
 	SDL_RenderPresent(ctx->renderer);
 }
 

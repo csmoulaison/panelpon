@@ -6,7 +6,6 @@
 
 #include "config.h"
 
-
 SDL_Surface* load_surface(const char* path) {
 	SDL_Surface* surf = SDL_LoadBMP(path);
 	if(!surf) {
@@ -27,10 +26,6 @@ void init(struct Context* ctx) {
 	// Init SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	// Init time
-	ctx->time_now = SDL_GetTicks64();
-	ctx->time_last = 0;
-
 	// Init rand
 	srand(time(NULL));
     
@@ -44,7 +39,7 @@ void init(struct Context* ctx) {
     	
     	//draw->window = SDL_CreateWindow("panelpon", 0, 0, draw->screen_w, draw->screen_h, 0);
     	draw->window = SDL_CreateWindow("panelpon", 0, 0, 1024, 1024, SDL_WINDOW_RESIZABLE);
-    	draw->renderer = SDL_CreateRenderer(draw->window, -1, SDL_RENDERER_ACCELERATED);
+    	draw->renderer = SDL_CreateRenderer(draw->window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     	SDL_RenderSetLogicalSize(draw->renderer, LOGICAL_W, LOGICAL_H);
 
     	draw->atlas_primary = load_texture(draw->renderer, PATH_ATLAS_PRIMARY);
@@ -110,4 +105,9 @@ void init(struct Context* ctx) {
 	}
 
 	game_init(&ctx->game);
+
+	// Init time
+	ctx->time_now = SDL_GetPerformanceCounter();
+	ctx->time_last = 0;
+	ctx->time_accumulator = 0;
 }

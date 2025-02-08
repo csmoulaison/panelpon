@@ -15,6 +15,7 @@ struct Context {
     // Time (for delta time calculation)
 	uint64_t time_last;
 	uint64_t time_now;
+	double time_accumulator;
 
 	struct Input input;
     struct DrawContext draw;

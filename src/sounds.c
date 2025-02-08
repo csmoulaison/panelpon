@@ -28,7 +28,7 @@ void snd_move(struct Sound* sound) {
     float len = 0.1;
     float tmod = sound->t / len;
 
-	sound->freq = 200 - tmod * 100 ;
+	sound->freq = 200 - tmod * 100;
 	sound->amp = 0.0 + tmod * 0.3;
 
 	if(sound->t > len) sound->active = false;
@@ -36,11 +36,21 @@ void snd_move(struct Sound* sound) {
 
 void snd_match(struct Sound* sound) {
 	float len = 0.3;
-	float tup = sound->t / len;
-    float tmod = sin((sound->t * PI * 8) / len);
+	float tmod = sound->t / len;
+    float tsin = sin((sound->t * PI * 8) / len);
 
-	sound->freq = 400 + tmod * 400 + tup * 800;
-	sound->amp = 0.00 + tmod * 0.3;
+	sound->freq = 400 + tsin * 400 + tmod * 800;
+	sound->amp = 0.00 + tsin * 0.3;
+
+	if(sound->t > len) sound->active = false;
+}
+
+void snd_lose(struct Sound* sound) {
+    float len = 4;
+    float tmod = sound->t / len;
+
+	sound->freq = 600 - (((int)tmod * 400) % 2) * 600;
+	sound->amp = 0.3;
 
 	if(sound->t > len) sound->active = false;
 }
