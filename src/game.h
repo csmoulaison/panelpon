@@ -15,46 +15,50 @@ enum GameState {
 };
 
 struct Game {
+    // Misc game state
     enum GameState state;
-
-    // Board, including y offset for upwards movement
-	uint8_t tiles[BOARD_LEN];
-	float yoff;
-	float hitch;
+	uint16_t timer;
+	uint8_t yoff;
+	uint8_t yoff_countdown;
 
 	// Cursor, including movement animation state
     uint8_t cursor;
     uint8_t cursor_prev;
-    double cursor_anim_t;
+    uint8_t cursor_anim; // game frames elapsed - not (necesarily) anim frames
 
-	// Ongoing board events - some of these are gameplay significant, and some
-	// are only for animation.
-	// 
-	// The indices directly equate to the tiles indices, and the value is the t
-	// value between 0 and 1, > 1 signifying an inactive event.
-	float flips[BOARD_LEN]; // index references left hand tile
-	float explodes[BOARD_LEN];  // index references exploding tile, duh
-	float falls[BOARD_LEN]; // index references end y pos
-	float buf_falls[BOARD_LEN]; // index references start y pos
+	// These indices all refer to the same board index, and, in all cases but
+	// tiles[i] the value represents the number of game frames until the event is
+	// complete - the value of tiles[i] refers to the type of tile stored.
+	uint8_t tiles[BOARD_LEN];
+	uint16_t explodes[BOARD_LEN];  // index references exploding tile, duh
+	uint8_t flips[BOARD_LEN]; // index references left hand tile
+	uint8_t falls[BOARD_LEN]; // index references end y pos
+	uint8_t buf_falls[BOARD_LEN]; // index references start y pos
 };
 
 void game_init(struct Game* game);
 
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
-void game_tick(struct Game* game, struct AudioContext* audio, double dt); 
+void game_tick(struct Game* game, struct AudioContext* audio); 
 void game_draw(struct Game* game, struct DrawContext* ctx);
 void game_draw_active(struct Game* game, struct DrawContext* ctx);
 void game_draw_pre(struct Game* game, struct DrawContext* ctx);
 void game_draw_post(struct Game* game, struct DrawContext* ctx);
 void game_update_matches(struct Game* game, struct AudioContext* audio);
+bool game_try_flip(struct Game* game);
 
 bool empty(struct Game* game, uint8_t i);
 bool falling(struct Game* game, uint8_t i);
 bool flipping(struct Game* game, uint8_t i);
 bool exploding(struct Game* game, uint8_t i);
+bool fall_buffered(struct Game* game, uint8_t i);
 
-void coords_from_index(uint8_t i, uint8_t* x, uint8_t* y);
-uint8_t index_from_coords(uint8_t x, uint8_t y);
+uint8_t xcoord(uint8_t i);
+uint8_t ycoord(uint8_t i);
+uint8_t bindex(uint8_t x, uint8_t y);
+uint8_t xoffset(uint8_t i, uint8_t x);
+uint8_t yoffset(uint8_t i, uint8_t x);
+uint8_t offset(uint8_t i, uint8_t x, uint8_t y);
 void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete* pl);
 
 #endif // game_h_INCLUDED

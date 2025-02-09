@@ -24,8 +24,8 @@ void draw_present(struct DrawContext* ctx);
 
 void draw_sprite(struct DrawContext* ctx, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl);
 void draw_sprite_flip(struct DrawContext* ctx, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl, SDL_RendererFlip flip);
-void draw_anim(struct DrawContext* ctx, float t, uint8_t frames, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl);
-void draw_anim_flip(struct DrawContext* ctx, float t, uint8_t frames, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl, SDL_RendererFlip flip);
+void draw_anim(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl);
+void draw_anim_flip(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl, SDL_RendererFlip flip);
 void draw_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl);
 void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl);
 

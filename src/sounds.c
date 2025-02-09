@@ -1,6 +1,7 @@
 #include "sounds.h"
 
 #include "math.h"
+#include "stdio.h"
 
 #define PI 3.14159265358979323846
 
@@ -46,11 +47,13 @@ void snd_match(struct Sound* sound) {
 }
 
 void snd_lose(struct Sound* sound) {
-    float len = 4;
+    float len = 3;
     float tmod = sound->t / len;
 
-	sound->freq = 600 - (((int)tmod * 400) % 2) * 600;
-	sound->amp = 0.3;
+	tmod /= 2;
+	sound->freq = 200 - ((int)(tmod * 200) % 3) * (tmod * 400);
+	tmod *= 2;
+	sound->amp = 0.45 - tmod * 0.45;
 
 	if(sound->t > len) sound->active = false;
 }

@@ -28,15 +28,12 @@ void draw_sprite_flip(struct DrawContext* ctx, struct IRect src, uint8_t x, uint
     SDL_RenderCopyEx(ctx->renderer, ctx->atlas_secondary, &s, &d, 0, NULL, flip);
 }
 
-void draw_anim(struct DrawContext* ctx, float t, uint8_t frames, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl) {
-    draw_anim_flip(ctx, t, frames, src, x, y, pl, false);
+void draw_anim(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl) {
+    draw_anim_flip(ctx, frame, framelen, src, x, y, pl, false);
 }
 
-void draw_anim_flip(struct DrawContext* ctx, float t, uint8_t frames, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl, SDL_RendererFlip flip) {
-    if(t >= 1) {
-        t = 0.99;
-    }
-	src.x += (uint8_t)(frames * t) * src.w;
+void draw_anim_flip(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, uint8_t x, uint8_t y, struct Pallete pl, SDL_RendererFlip flip) {
+	src.x += (frame / framelen) * src.w;
 	draw_sprite_flip(ctx, src, x, y, pl, flip);
 }
 

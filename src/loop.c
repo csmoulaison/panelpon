@@ -1,13 +1,11 @@
 #include "loop.h"
 
 #include "game.h"
+#include "sounds.h"
 
 #include "stdio.h"
 #include "stdlib.h"
 #include "time.h"
-
-#define MS_PER_FRAME 2
-#define DT MS_PER_FRAME / 1000.0
 
 void loop(struct Context* ctx) {
     // Calculate delta time
@@ -28,16 +26,24 @@ void loop(struct Context* ctx) {
         	case GAME_PRE:
             	if(ctx->input.select.just_pressed) {
                 	ctx->game.state = GAME_ACTIVE;
+                	struct Sound sound;
+                	sound.priority = 1;
+                	sound.callback = snd_move;
+                	sound_play(&ctx->audio, sound);
             	}
             	break;
             case GAME_ACTIVE:
             	game_control(&ctx->game, &ctx->input, &ctx->audio);
-            	game_tick(&ctx->game, &ctx->audio, DT);
+            	game_tick(&ctx->game, &ctx->audio);
                 break;
     		case GAME_POST:
-        		ctx->game.hitch += DT;
+        		ctx->game.timer -= 1;
             	if(ctx->input.select.just_pressed) {
                 	game_init(&ctx->game);
+                	struct Sound sound;
+                	sound.priority = 1;
+                	sound.callback = snd_move;
+                	sound_play(&ctx->audio, sound);
             	}
         		break;
         	default:
