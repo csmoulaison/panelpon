@@ -6,6 +6,7 @@
 
 #include "input.h"
 #include "game.h"
+#include "game_draw.h"
 #include "audio.h"
 
 #define LOGICAL_W 216

@@ -5,7 +5,6 @@
 
 #include "config.h"
 #include "input.h"
-#include "draw.h"
 #include "audio.h"
 
 enum GameState {
@@ -39,28 +38,5 @@ struct Game {
 void game_init(struct Game* game);
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
 void game_tick(struct Game* game, struct AudioContext* audio); 
-
-void game_draw(struct Game* game, struct DrawContext* ctx);
-void game_draw_active(struct Game* game, struct DrawContext* ctx);
-void game_draw_pre(struct Game* game, struct DrawContext* ctx);
-void game_draw_post(struct Game* game, struct DrawContext* ctx);
-
-void check_matches(struct Game* game, struct AudioContext* audio);
-
-bool empty(struct Game* game, uint8_t i);
-bool falling(struct Game* game, uint8_t i);
-bool flipping(struct Game* game, uint8_t i);
-bool exploding(struct Game* game, uint8_t i);
-bool fall_buffered(struct Game* game, uint8_t i);
-bool can_flip(struct Game* game);
-
-uint8_t xcoord(uint8_t i);
-uint8_t ycoord(uint8_t i);
-uint8_t bindex(uint8_t x, uint8_t y);
-uint8_t xoffset(uint8_t i, uint8_t x);
-uint8_t yoffset(uint8_t i, uint8_t x);
-uint8_t offset(uint8_t i, uint8_t x, uint8_t y);
-
-void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete* pl);
 
 #endif // game_h_INCLUDED
