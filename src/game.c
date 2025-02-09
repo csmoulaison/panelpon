@@ -72,10 +72,35 @@ void game_control(struct Game* game, struct Input* input, struct AudioContext* a
 	if(input->select.just_pressed) {
     	struct Sound sound;
     	sound.priority = 1;
-    	if(game_try_flip(game)) {
-        	sound.callback = snd_flip;
-    	} else {
+    	if(!can_flip(game)) {
         	sound.callback = snd_noflip;
+        } else {
+        	sound.callback = snd_flip;
+
+			uint8_t right = xoffset(game->cursor, 1);
+
+        	uint8_t tmp = game->tiles[game->cursor];
+        	game->tiles[game->cursor] = game->tiles[right];
+        	game->tiles[right] = tmp;
+
+        	// Cancel adjacent flip animations
+        	if(curx > 0) {
+           		game->flips[right] = 0;
+           		game->falls[right] = 0;
+        	}
+        	if(curx < BOARD_W - 2) {
+        		game->flips[game->cursor] = 0;
+           		game->falls[game->cursor] = 0;
+        	}
+        	game->flips[game->cursor] = FRAMES_FLIP;
+
+        	// If we flip over an empty space, keep track of that.
+        	for(int i = 0; i < 2; i++) {
+        		if(empty(game, game->cursor + i + BOARD_W)) {
+        			game->buf_falls[game->cursor + i] = FRAMES_FLIP;
+        		}
+        	}
+        	check_matches(game, audio);
     	}
     	sound_play(audio, sound);
 	}
@@ -195,7 +220,7 @@ postmove:
 	}
 
 	if(update_matches) {
-		game_update_matches(game, audio);
+		check_matches(game, audio);
 	}
 }
 
@@ -363,9 +388,11 @@ void game_draw_post(struct Game* game, struct DrawContext* ctx) {
 	}
 }
 
-void game_update_matches(struct Game* game, struct AudioContext* audio) {
-    bool matches_found = false;
-	// Horizontal matches
+void check_matches(struct Game* game, struct AudioContext* audio) {
+    uint8_t new[BOARD_LEN];;
+    uint8_t new_len = 0;
+
+	// Rows
 	for(uint8_t y = 0; y < BOARD_H - 1; y++) {
 		for(uint8_t x = 0; x < BOARD_W - 1; x++) {
     		uint8_t i = bindex(x, y);
@@ -388,9 +415,10 @@ void game_update_matches(struct Game* game, struct AudioContext* audio) {
 
     		if(matches >= 3) {
     			for(uint8_t j = 0; j < matches; j++) {
-    				game->explodes[xoffset(i, j)] = FRAMES_EXPLODE;
+        			new[new_len] = xoffset(i, j);
+        			new_len++;
+    				//game->explodes[xoffset(i, j)] = FRAMES_EXPLODE;
     			}
-    			matches_found = true;
     		}
 
     		if(xoff == 0) {
@@ -399,6 +427,7 @@ void game_update_matches(struct Game* game, struct AudioContext* audio) {
     		x += xoff - 1;
 		}
 	}
+	// Columns
 	for(uint8_t x = 0; x < BOARD_W; x++) {
 		for(uint8_t y = 0; y < BOARD_H - 2; y++) {
     		uint8_t i = bindex(x, y);
@@ -420,9 +449,10 @@ void game_update_matches(struct Game* game, struct AudioContext* audio) {
     		}
     		if(matches >= 3) {
     			for(uint8_t j = 0; j < matches; j++) {
-    				game->explodes[yoffset(i, j)] = FRAMES_EXPLODE;
+        			new[new_len] = yoffset(i, j);
+        			new_len++;
+    				//game->explodes[yoffset(i, j)] = FRAMES_EXPLODE;
     			}
-    			matches_found = true;
     		}
     		if(yoff == 0) {
         		yoff = 1;
@@ -431,7 +461,11 @@ void game_update_matches(struct Game* game, struct AudioContext* audio) {
 		}
 	}
 
-	if(matches_found) {
+	for(int i = 0; i < new_len; i++) {
+    	game->explodes[new[i]] = FRAMES_EXPLODE;
+	}
+
+	if(new_len > 0) {
 		game->timer = FRAMES_HITCH;
 
 		struct Sound sound;
@@ -487,7 +521,7 @@ uint8_t offset(uint8_t i, uint8_t x, uint8_t y) {
 	 return i + x + BOARD_W * y;
 }
 
-bool game_try_flip(struct Game* game) {
+bool can_flip(struct Game* game) {
 	// Don't allow flip if both cursor tiles empty, or either one is exploding or
 	// part of a fall.
 	if((empty(game, game->cursor) && empty(game, game->cursor + 1)) 
@@ -512,30 +546,6 @@ bool game_try_flip(struct Game* game) {
 			if(!empty(game, check_cursor - j * BOARD_W)) {
 				return false;
 			}
-		}
-	}
-
-
-	uint8_t tmp = game->tiles[game->cursor];
-	game->tiles[game->cursor] = game->tiles[game->cursor + 1];
-	game->tiles[game->cursor + 1] = tmp;
-
-	uint8_t curx = game->cursor % BOARD_W;
-	// Cancel adjacent flip animations
-	if(curx > 0) {
-   		game->flips[game->cursor + 1] = 0;
-   		game->falls[game->cursor + 1] = 0;
-	}
-	if(curx < BOARD_W - 2) {
-		game->flips[game->cursor] = 0;
-   		game->falls[game->cursor] = 0;
-	}
-
-	game->flips[game->cursor] = FRAMES_FLIP;
-	// If we flip over an empty space, keep track of that.
-	for(int i = 0; i < 2; i++) {
-		if(empty(game, game->cursor + i + BOARD_W)) {
-			game->buf_falls[game->cursor + i] = FRAMES_FLIP;
 		}
 	}
 
