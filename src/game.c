@@ -316,6 +316,10 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
         if(game->explodes[i] != 0 && (game->explodes[i] / 12) % 2 != 0) {
         	pl = PL_ALL_WHITE;
 		}
+		if(y == BOARD_H - 1) {
+    		pl = PL_ALL_WHITE;
+		}
+		
         draw_sprite(ctx, spr, boardx + x * 8, boardy + y * 8 - yoff, pl);
 	}
 
@@ -417,7 +421,6 @@ void check_matches(struct Game* game, struct AudioContext* audio) {
     			for(uint8_t j = 0; j < matches; j++) {
         			new[new_len] = xoffset(i, j);
         			new_len++;
-    				//game->explodes[xoffset(i, j)] = FRAMES_EXPLODE;
     			}
     		}
 
@@ -451,7 +454,6 @@ void check_matches(struct Game* game, struct AudioContext* audio) {
     			for(uint8_t j = 0; j < matches; j++) {
         			new[new_len] = yoffset(i, j);
         			new_len++;
-    				//game->explodes[yoffset(i, j)] = FRAMES_EXPLODE;
     			}
     		}
     		if(yoff == 0) {
