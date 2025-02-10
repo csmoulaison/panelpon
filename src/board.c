@@ -1,35 +1,5 @@
 #include "board.h"
 
-// Checks if we can flip in a given turn
-bool can_flip(struct Game* game) {
-	if((empty(game, game->cursor) && empty(game, game->cursor + 1)) 
-	|| fall_buffered(game, game->cursor) || fall_buffered(game, xoffset(game->cursor, 1))
-	|| exploding(game, game->cursor) || exploding(game, xoffset(game->cursor, 1)) 
-	|| falling(game, game->cursor)) {
-    	return false;
-	}
-
-	// Don't allow flip if a cursor tile is empty with a tile somewhere above it.
-	for(int i = 0; i < 2; i++) {
-    	uint8_t check_cursor = xoffset(game->cursor, i);
-
-    	if(!empty(game, check_cursor)) {
-        	continue;
-    	}
-
-		for(int j = 1; j < BOARD_H; j++) {
-			if(check_cursor / BOARD_W - j < 0) {
-				break;
-			}
-			if(!empty(game, check_cursor - j * BOARD_W)) {
-				return false;
-			}
-		}
-	}
-
-	return true;
-}
-
 // Tile state queries
 bool empty(struct Game* game, uint8_t i) {
 	return game->tiles[i] == 0;

@@ -3,8 +3,6 @@
 
 #include "game.h"
 
-bool can_flip(struct Game* game);
-
 bool empty(struct Game* game, uint8_t i);
 bool exploding(struct Game* game, uint8_t i);
 bool flipping(struct Game* game, uint8_t i);

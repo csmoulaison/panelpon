@@ -6,13 +6,12 @@
 
 int main() {
 	struct Context ctx;
-    init(&ctx);
+	init(&ctx);
 
 	while(!ctx.input.quit.held && !ctx.input.quit_event) {
     	loop(&ctx);
 	}
 
 	destroy(&ctx);
-    
-    return 0;
+	return 0;
 }

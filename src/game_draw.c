@@ -1,10 +1,8 @@
 #include "game_draw.h"
 
 void game_draw(struct Game* game, struct DrawContext* ctx) {
-	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
-	uint8_t boardy_abs = LOGICAL_H / 2 - BOARD_H / 2 * 8;
-	uint8_t boardy = boardy_abs + game->yoff;
-	(void)boardy;
+	ctx->xoff = LOGICAL_W / 2 - BOARD_W / 2 * 8;
+	ctx->yoff = LOGICAL_H / 2 - BOARD_H / 2 * 8;
 
 	switch(game->state) {
     	case GAME_ACTIVE:
@@ -21,15 +19,11 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 	}
 
 	// Draw border
-	draw_fill_rect(ctx, (struct IRect){boardx, boardy_abs + BOARD_H * 8 - 1, BOARD_W * 8, 10}, PL_ALL_BLACK);
-	draw_rect(ctx, (struct IRect){boardx - 3, boardy_abs - 3, BOARD_W * 8 + 4, BOARD_H * 8 + 3}, PL_ALL_WHITE);
+	draw_fill_rect(ctx, (struct IRect){0, BOARD_H * 8 - 1, BOARD_W * 8, 10}, PL_ALL_BLACK);
+	draw_rect(ctx, (struct IRect){-3, -3, BOARD_W * 8 + 4, BOARD_H * 8 + 3}, PL_ALL_WHITE);
 }
 
 void game_draw_active(struct Game* game, struct DrawContext* ctx) {
-	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
-	uint8_t boardy_abs = LOGICAL_H / 2 - BOARD_H / 2 * 8;
-	uint8_t boardy = boardy_abs - game->yoff + 8;
-
 	// Skip empty tiles during tile draw below
 	bool skips[BOARD_LEN];
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
@@ -53,7 +47,7 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
         	spr_from_index(game->tiles, i, &spr, &pl);
         	spr.w *= 2;
         	spr.x += SPR_TILE_MOVE_OFFSET;
-        	draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, boardx + flipx * 8, boardy + flipy * 8, pl, true);
+        	draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, flipx * 8, 8 - game->yoff + flipy * 8, pl, true);
 		}
 
 		// We assume i + 1 is safe, because flips never appear at a right edge tile
@@ -61,7 +55,7 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
         	spr_from_index(game->tiles, i + 1, &spr, &pl);
         	spr.w *= 2;
         	spr.x += SPR_TILE_MOVE_OFFSET;
-        	draw_anim(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, boardx + flipx * 8, boardy + flipy * 8, pl);
+        	draw_anim(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, flipx * 8, 8 - game->yoff + flipy * 8, pl);
 		}
 
 		// Skip flipping tiles during tile draw below
@@ -96,37 +90,15 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
     		pl = PL_ALL_WHITE;
 		}
 		
-        draw_sprite(ctx, spr, boardx + x * 8, boardy + y * 8 - yoff, pl);
+        draw_sprite(ctx, spr, x * 8, 8 - game->yoff + y * 8 - yoff, pl);
 	}
 
 	// Cursor
-	{
-    	uint8_t curx = xcoord(game->cursor) * 8 + boardx;
-    	uint8_t cury = ycoord(game->cursor) * 8 + boardy;
-
-    	if(game->cursor_anim != FRAMES_CURSOR) {
-        	uint8_t framelen = SPR_CURSOR_MOVE_FRAME_LEN;
-    		if(game->cursor_prev == game->cursor + 1) {
-    			struct IRect spr = SPR_CURSOR_MOVE_R;
-    			draw_anim_flip(ctx, game->cursor_anim, framelen, spr, curx - 2, cury - 1, PL_ALL_WHITE, true);
-    		} else if(game->cursor_prev == game->cursor - 1) {
-				struct IRect spr = SPR_CURSOR_MOVE_R;
-    			draw_anim(ctx, game->cursor_anim, framelen, spr, curx - 9, cury - 1, PL_ALL_WHITE);
-    		} else if(game->cursor_prev == game->cursor - BOARD_W) {
-				struct IRect spr = SPR_CURSOR_MOVE_D;
-    			draw_anim(ctx, game->cursor_anim, framelen, spr, curx - 1, cury - 9, PL_ALL_WHITE);
-    		} else if(game->cursor_prev == game->cursor + BOARD_W) {
-				struct IRect spr = SPR_CURSOR_MOVE_D;
-    			draw_anim_flip(ctx, game->cursor_anim, framelen, spr, curx - 1, cury - 2, PL_ALL_WHITE, 2);
-    		}
-    	} else {
-        	draw_sprite(ctx, SPR_CURSOR, curx - 1, cury - 1, PL_ALL_WHITE);
-    	}
-	}
+	game->draw_cursor(game, ctx);
 
 	// Draw debug gizmos
 	for(int i = 0; i < BOARD_LEN; i++) {
-		if(flipping(game, i)) draw_sprite(ctx, SPR_DEBUG_1, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
+		//if(flipping(game, i)) draw_sprite(ctx, SPR_DEBUG_1, i % BOARD_W * 8, 8 - game->yoff + i / BOARD_W * 8, PL_BLUE);
 		//if(exploding(game, i)) draw_sprite(ctx, SPR_DEBUG_2, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
 		//if(falling(game, i)) draw_sprite(ctx, SPR_DEBUG_1, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_PURPLE);
 		//if(fall_buffered(game, i)) draw_sprite(ctx, SPR_DEBUG_2, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_YELLOW);
@@ -139,10 +111,6 @@ void game_draw_pre(struct Game* game, struct DrawContext* ctx) {
 }
 
 void game_draw_post(struct Game* game, struct DrawContext* ctx) {
-	uint8_t boardx = LOGICAL_W / 2 - BOARD_W / 2 * 8;
-	uint8_t boardy_abs = LOGICAL_H / 2 - BOARD_H / 2 * 8;
-	uint8_t boardy = boardy_abs - game->yoff + 8;
-
     for(uint8_t i = 0; i < BOARD_LEN; i++) {  
 		if(game->tiles[i] == 0) {
     		continue;
@@ -164,7 +132,7 @@ void game_draw_post(struct Game* game, struct DrawContext* ctx) {
         if((game->timer / 16) % 2 != 0) {
         	pl = PL_ALL_WHITE;
 		}
-        draw_sprite(ctx, spr, boardx + x * 8, boardy + y * 8 - yoff, pl);
+        draw_sprite(ctx, spr, x * 8, game->yoff + y * 8 - yoff, pl);
 	}
 }
 

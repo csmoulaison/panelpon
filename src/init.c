@@ -5,6 +5,7 @@
 #include "time.h"
 
 #include "config.h"
+#include "cursor_classic.h"
 
 SDL_Surface* load_surface(const char* path) {
 	SDL_Surface* surf = SDL_LoadBMP(path);
@@ -38,7 +39,7 @@ void init(struct Context* ctx) {
     	draw->screen_h = mode.h;
     	
     	//draw->window = SDL_CreateWindow("panelpon", 0, 0, draw->screen_w, draw->screen_h, 0);
-    	draw->window = SDL_CreateWindow("panelpon", 0, 0, 1024, 1024, SDL_WINDOW_RESIZABLE);
+    	draw->window = SDL_CreateWindow("panelpon", 0, 0, 640, 640, SDL_WINDOW_RESIZABLE);
     	draw->renderer = SDL_CreateRenderer(draw->window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     	SDL_RenderSetLogicalSize(draw->renderer, LOGICAL_W, LOGICAL_H);
 
@@ -47,6 +48,9 @@ void init(struct Context* ctx) {
 
     	SDL_Surface* icon= load_surface(PATH_ICON);
     	SDL_SetWindowIcon(draw->window, icon);
+
+    	draw->xoff = 0;
+    	draw->yoff = 0;
 	}
 
 	// Init audio context
@@ -105,6 +109,8 @@ void init(struct Context* ctx) {
 	}
 
 	game_init(&ctx->game);
+	ctx->game.swap = cur_classic_swap;
+	ctx->game.draw_cursor = cur_classic_draw;
 
 	// Init time
 	ctx->time_now = SDL_GetPerformanceCounter();

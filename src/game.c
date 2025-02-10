@@ -22,9 +22,9 @@ void game_init(struct Game* game) {
     		game->tiles[i] = 0;
 		}
 
-		game->flips[i] = 0;
-		game->explodes[i] = 0;
-		game->falls[i] = 0;
+		game->flips[i]     = 0;
+		game->explodes[i]  = 0;
+		game->falls[i]     = 0;
 		game->buf_falls[i] = 0;
 	}
 
@@ -71,35 +71,11 @@ void game_control(struct Game* game, struct Input* input, struct AudioContext* a
 	if(input->select.just_pressed) {
     	struct Sound sound;
     	sound.priority = 1;
-    	if(!can_flip(game)) {
-        	sound.callback = snd_noflip;
-        } else {
+    	if(game->swap(game)) {
         	sound.callback = snd_flip;
-
-			uint8_t right = xoffset(game->cursor, 1);
-
-        	uint8_t tmp = game->tiles[game->cursor];
-        	game->tiles[game->cursor] = game->tiles[right];
-        	game->tiles[right] = tmp;
-
-        	// Cancel adjacent flip animations
-        	if(curx > 0) {
-           		game->flips[right] = 0;
-           		game->falls[right] = 0;
-        	}
-        	if(curx < BOARD_W - 2) {
-        		game->flips[game->cursor] = 0;
-           		game->falls[game->cursor] = 0;
-        	}
-        	game->flips[game->cursor] = FRAMES_FLIP;
-
-        	// If we flip over an empty space, keep track of that.
-        	for(int i = 0; i < 2; i++) {
-        		if(empty(game, game->cursor + i + BOARD_W)) {
-        			game->buf_falls[game->cursor + i] = FRAMES_FLIP;
-        		}
-        	}
         	check_matches(game, audio);
+        } else {
+        	sound.callback = snd_noflip;
     	}
     	sound_play(audio, sound);
 	}
@@ -112,14 +88,12 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
     	game->timer--;
 		goto postmove;
 	}
-	
 	// Move tiles up, generating new tiles as needed
 	game->yoff_countdown -= 1;
 	if(game->yoff_countdown == 0) {
     	game->yoff += 1;
     	game->yoff_countdown = FRAMES_YOFF;
 	}
-
 	if(game->yoff != 8) {
 		goto postmove;
 	}
@@ -142,7 +116,7 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
 	game->yoff = 0;
 
 	// Move everything up one tile, including events
-	if(game->cursor >= BOARD_W) {
+    	if(game->cursor >= BOARD_W) {
 		game->cursor -= BOARD_W;
 	}
 	for(uint8_t y = 1; y < BOARD_H; y++) {
@@ -174,17 +148,14 @@ postmove:
     	if(game->buf_falls[i] != 0) {
     		game->buf_falls[i]--;
     	}
-
     	// Constructed this way, the following if statements will only deincrement
     	// the associate values if they don't already equal 0.
     	if(game->explodes[i] != 0 && --game->explodes[i] == 0) {
 			game->tiles[i] = 0;
     	}
-
     	if(game->flips[i] != 0 && --game->flips[i] == 0) {
     		update_matches = true;
     	}
-
     	if(game->falls[i] != 0 && --game->falls[i] == 0) {
     		update_matches = true;
     	}
@@ -192,8 +163,8 @@ postmove:
 
 	// Check for tile falling
 	for(uint8_t x = 0; x < BOARD_W; x++) {
-    	for(uint8_t y = BOARD_H - 1; y >= 1; y--) {
-        	uint8_t i = bindex(x, y);
+        for(uint8_t y = BOARD_H - 1; y >= 1; y--) {
+            uint8_t i = bindex(x, y);
         	uint8_t above = yoffset(i, -1);
 
         	// Skip anything which isn't a non-empty tile on top of an empty tile,
@@ -202,7 +173,7 @@ postmove:
     		|| exploding(game, above)
     		|| flipping(game, i) || flipping(game, above) 
     		|| !empty(game, i) || empty(game, above)) {
-				continue;
+    			continue;
     		}
 
 			// Move the tile down
@@ -212,12 +183,12 @@ postmove:
 			// Keep track of the fall and cancel any associated buffered falls
 			game->falls[i] = FRAMES_FALL;
 			game->buf_falls[above] = 0;
-    	}
+		}
 	}
 
 	// Tick cursor
 	if(game->cursor_anim != FRAMES_CURSOR) {
-    	game->cursor_anim++;
+		game->cursor_anim++;
 	}
 
 	if(update_matches) {

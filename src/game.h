@@ -6,6 +6,7 @@
 #include "config.h"
 #include "input.h"
 #include "audio.h"
+#include "draw.h"
 
 enum GameState {
     GAME_PRE,
@@ -14,6 +15,10 @@ enum GameState {
 };
 
 struct Game {
+	// Function pointers
+	bool (*swap)(struct Game* game);
+	void (*draw_cursor)(struct Game* game, struct DrawContext* draw);
+    
     // Misc game state
     enum GameState state;
 	uint16_t timer;
