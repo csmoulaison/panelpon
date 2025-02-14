@@ -2,6 +2,11 @@
 
 #include "board.h"
 
+uint8_t cur_classic_start_pos(struct Game* game) {
+    (void)game;
+	return BOARD_LEN / 2 - 1;
+}
+
 bool cur_classic_swap(struct Game* game) {
     // Check if we can flip
 	if((empty(game, game->cursor) && empty(game, game->cursor + 1)) 
@@ -80,4 +85,21 @@ void cur_classic_draw(struct Game* game, struct DrawContext* ctx) {
 	} else {
     	draw_sprite(ctx, SPR_CURSOR, curx - 1, cury - 1, PL_ALL_WHITE);
 	}
+}
+
+uint8_t cur_classic_move(struct Game* game, struct Input* input) {
+	uint8_t curx = xcoord(game->cursor);
+	uint8_t cury = ycoord(game->cursor);
+
+   	if(input->up.just_pressed)    cury -= 1;
+	if(input->down.just_pressed)  cury += 1;
+	if(input->left.just_pressed)  curx -= 1;
+	if(input->right.just_pressed) curx += 1;
+
+	if(cury == 255)        cury = 0;
+	if(curx == 255)        curx = 0;
+	if(cury > BOARD_H - 2) cury = BOARD_H - 2;
+	if(curx > BOARD_W - 2) curx = BOARD_W - 2; // -2 because cursor is 2x1
+
+	return bindex(curx, cury);
 }

@@ -1,5 +1,4 @@
 #include "init.h"
-
 #include "stdio.h"
 #include "stdlib.h"
 #include "time.h"
@@ -39,7 +38,7 @@ void init(struct Context* ctx) {
     	draw->screen_h = mode.h;
     	
     	//draw->window = SDL_CreateWindow("panelpon", 0, 0, draw->screen_w, draw->screen_h, 0);
-    	draw->window = SDL_CreateWindow("panelpon", 0, 0, 640, 640, SDL_WINDOW_RESIZABLE);
+    	draw->window = SDL_CreateWindow("panelpon", 0, 0, 1300, 1300, SDL_WINDOW_RESIZABLE);
     	draw->renderer = SDL_CreateRenderer(draw->window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     	SDL_RenderSetLogicalSize(draw->renderer, LOGICAL_W, LOGICAL_H);
 
@@ -108,9 +107,12 @@ void init(struct Context* ctx) {
     	}
 	}
 
-	game_init(&ctx->game);
+	// Init game - when do function pointers get assigned?
+	ctx->game.cursor_start_pos = cur_classic_start_pos;
 	ctx->game.swap = cur_classic_swap;
 	ctx->game.draw_cursor = cur_classic_draw;
+	ctx->game.move_cursor = cur_classic_move;
+	game_init(&ctx->game);
 
 	// Init time
 	ctx->time_now = SDL_GetPerformanceCounter();

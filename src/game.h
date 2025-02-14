@@ -16,8 +16,10 @@ enum GameState {
 
 struct Game {
 	// Function pointers
+	uint8_t (*cursor_start_pos)(struct Game* game);
 	bool (*swap)(struct Game* game);
 	void (*draw_cursor)(struct Game* game, struct DrawContext* draw);
+	uint8_t (*move_cursor)(struct Game* game, struct Input* input);
     
     // Misc game state
     enum GameState state;

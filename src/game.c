@@ -7,12 +7,13 @@
 #include "board.h"
 #include "matches.h"
 
+
 void game_init(struct Game* game) {
 	game->yoff = 0;
 	game->yoff_countdown = FRAMES_YOFF;
 	game->timer = 0;
 
-	game->cursor = BOARD_LEN / 2;
+	game->cursor = game->cursor_start_pos(game);
 	game->cursor_prev = game->cursor;
 	game->cursor_anim = FRAMES_CURSOR;
 
@@ -36,36 +37,17 @@ void game_init(struct Game* game) {
 }
 
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio) {
-    // Updated and used throughout function
-	uint8_t curx = xcoord(game->cursor);
-	uint8_t cury = ycoord(game->cursor);
+    uint8_t cursor_new = game->move_cursor(game, input);
+	if(cursor_new != game->cursor) {
+		game->cursor_prev = game->cursor;
+		game->cursor_anim = 0;
+		game->cursor = cursor_new;
 
-    // Move cursor
-    {
-       	if(input->up.just_pressed)    cury -= 1;
-    	if(input->down.just_pressed)  cury += 1;
-    	if(input->left.just_pressed)  curx -= 1;
-    	if(input->right.just_pressed) curx += 1;
-
-    	if(cury == 255)        cury = 0;
-    	if(curx == 255)        curx = 0;
-    	if(cury > BOARD_H - 2) cury = BOARD_H - 2;
-    	if(curx > BOARD_W - 2) curx = BOARD_W - 2; // -2 because cursor is 2x1
-
-    	uint8_t cursor_new = bindex(curx, cury);
-		// Keep track of the previous cursor position for animation
-    	if(cursor_new != game->cursor) {
-    		game->cursor_prev = game->cursor;
-    		game->cursor_anim = 0;
-    		game->cursor = cursor_new;
-
-			// Probably only play if no match
-    		struct Sound sound;
-    		sound.priority = 1;
-    		sound.callback = snd_move;
-    		sound_play(audio, sound);
-    	}
-    }
+		struct Sound sound;
+		sound.priority = 1;
+		sound.callback = snd_move;
+		sound_play(audio, sound);
+	}
 
 	// Flip tiles
 	if(input->select.just_pressed) {
@@ -116,7 +98,7 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
 	game->yoff = 0;
 
 	// Move everything up one tile, including events
-    	if(game->cursor >= BOARD_W) {
+	if(game->cursor >= BOARD_W) {
 		game->cursor -= BOARD_W;
 	}
 	for(uint8_t y = 1; y < BOARD_H; y++) {

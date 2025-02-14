@@ -18,7 +18,7 @@
 #define LOGICAL_H 216
 
 // Match config
-#define SHAPES_LEN 5
+#define SHAPES_LEN 6
 #define BOARD_W 8
 #define BOARD_H 17
 #define BOARD_LEN BOARD_W * BOARD_H
