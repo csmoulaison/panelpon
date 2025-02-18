@@ -67,6 +67,12 @@ void cur_classic_draw(struct Game* game, struct DrawContext* ctx) {
 	uint8_t curx = xcoord(game->cursor) * 8;
 	uint8_t cury = ycoord(game->cursor) * 8 + 8 - game->yoff;
 
+	draw_sprite(ctx, SPR_CURSOR_HBIAS, curx - 1, cury - 1, PL_ALL_WHITE);
+	draw_sprite_flip(ctx, SPR_CURSOR_HBIAS, curx + 8 + 1, cury - 1, PL_ALL_WHITE, SDL_FLIP_HORIZONTAL);
+	draw_sprite_flip(ctx, SPR_CURSOR_HBIAS, curx - 1, cury + 1, PL_ALL_WHITE, SDL_FLIP_VERTICAL);
+	draw_sprite_flip(ctx, SPR_CURSOR_HBIAS, curx + 8 + 1, cury + 1, PL_ALL_WHITE, SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL);
+
+	/* animations
 	if(game->cursor_anim != FRAMES_CURSOR) {
     	uint8_t framelen = SPR_CURSOR_MOVE_FRAME_LEN;
 		if(game->cursor_prev == game->cursor + 1) {
@@ -85,6 +91,7 @@ void cur_classic_draw(struct Game* game, struct DrawContext* ctx) {
 	} else {
     	draw_sprite(ctx, SPR_CURSOR, curx - 1, cury - 1, PL_ALL_WHITE);
 	}
+	*/
 }
 
 uint8_t cur_classic_move(struct Game* game, struct Input* input) {
