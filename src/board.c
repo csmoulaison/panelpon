@@ -11,7 +11,7 @@ bool exploding(struct Game* game, uint8_t i) {
 
 bool flipping(struct Game* game, uint8_t i) {
     bool flipping = game->flips[i] != 0;
-    return flipping || (i % BOARD_W != BOARD_W - 1 && game->flips[i - 1] != 0);
+    return flipping || (xcoord(i) != 0 && game->flips[xoffset(i, -1)] != 0);
 }
 
 bool falling(struct Game* game, uint8_t i) {

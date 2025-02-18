@@ -9,10 +9,10 @@ uint8_t cur_classic_start_pos(struct Game* game) {
 
 bool cur_classic_swap(struct Game* game) {
     // Check if we can flip
-	if((empty(game, game->cursor) && empty(game, game->cursor + 1)) 
+	if((empty(game, game->cursor) && empty(game, xoffset(game->cursor, 1))) 
 	|| fall_buffered(game, game->cursor) || fall_buffered(game, xoffset(game->cursor, 1))
 	|| exploding(game, game->cursor) || exploding(game, xoffset(game->cursor, 1)) 
-	|| falling(game, game->cursor)) {
+	|| falling(game, game->cursor) || falling(game, xoffset(game->cursor , 1))) {
     	return false;
 	}
 
@@ -41,22 +41,27 @@ bool cur_classic_swap(struct Game* game) {
 	game->tiles[game->cursor] = game->tiles[right];
 	game->tiles[right] = tmp;
 
-	// Cancel adjacent flip animations
+	// Cancel overlapping flips/falls
 	uint8_t curx = xcoord(game->cursor);
+	if(curx < BOARD_W - 1) {
+    	game->flips[right] = 0;
+	}
 	if(curx > 0) {
-   		game->flips[right] = 0;
-   		game->falls[right] = 0;
+		game->flips[xoffset(game->cursor, -1)] = 0;
 	}
-	if(curx < BOARD_W - 2) {
-		game->flips[game->cursor] = 0;
-   		game->falls[game->cursor] = 0;
-	}
+
+	// Do we actually need to cancel falls? Isn't this a bad scenario?
+	// Result: seems not upon shallow examination
+	//game->falls[right] = 0;
+	//game->falls[game->cursor] = 0;
+
 	game->flips[game->cursor] = FRAMES_FLIP;
 
 	// If we flip over an empty space, keep track of that.
 	for(int i = 0; i < 2; i++) {
-		if(empty(game, game->cursor + i + BOARD_W)) {
-			game->buf_falls[game->cursor + i] = FRAMES_FLIP;
+		if(empty(game, offset(game->cursor, i, 1))) {
+    		printf("buf: %i, %i\n", xcoord(game->cursor + i), ycoord(game->cursor + i));
+			game->buf_falls[xoffset(game->cursor, i)] = FRAMES_FLIP;
 		}
 	}
 

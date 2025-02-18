@@ -74,9 +74,6 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
     	struct Pallete pl;
     	spr_from_index(game->tiles, i, &spr, &pl);
 
-		uint8_t x = xcoord(i);
-		uint8_t y = ycoord(i);
-
 		// Offset y if currently falling
 		uint8_t yoff = 0;
         if(game->falls[i] != 0) {
@@ -86,11 +83,13 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
         if(game->explodes[i] != 0 && (game->explodes[i] / 12) % 2 != 0) {
         	pl = PL_ALL_WHITE;
 		}
-		if(y == BOARD_H - 1) {
-    		pl = PL_ALL_WHITE;
+		if(ycoord(i) == BOARD_H - 1) {
+    		//pl = PL_ALL_WHITE;
+    		spr.x += 48;
+    		spr.y += 48;
 		}
 		
-        draw_sprite(ctx, spr, x * 8, 8 - game->yoff + y * 8 - yoff, pl);
+        draw_sprite(ctx, spr, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8 - yoff, pl);
 	}
 
 	// Cursor
@@ -98,10 +97,10 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 
 	// Draw debug gizmos
 	for(int i = 0; i < BOARD_LEN; i++) {
-		//if(flipping(game, i)) draw_sprite(ctx, SPR_DEBUG_1, i % BOARD_W * 8, 8 - game->yoff + i / BOARD_W * 8, PL_BLUE);
-		//if(exploding(game, i)) draw_sprite(ctx, SPR_DEBUG_2, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_BLUE);
-		//if(falling(game, i)) draw_sprite(ctx, SPR_DEBUG_1, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_PURPLE);
-		//if(fall_buffered(game, i)) draw_sprite(ctx, SPR_DEBUG_2, boardx + i % BOARD_W * 8, boardy + i / BOARD_W * 8, PL_YELLOW);
+		//if(flipping(game, i)) draw_sprite(ctx, SPR_DEBUG_FLIP, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_YELLOW);		
+		//if(exploding(game, i)) draw_sprite(ctx, SPR_DEBUG_EXPLODE, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_BLUE);		
+		//if(falling(game, i)) draw_sprite(ctx, SPR_DEBUG_FALL, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_GREEN);
+		//if(fall_buffered(game, i)) draw_sprite(ctx, SPR_DEBUG_BUF, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_RED);
 	}
 }
 
