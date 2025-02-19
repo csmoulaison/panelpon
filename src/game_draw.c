@@ -85,8 +85,7 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 		}
 		if(ycoord(i) == BOARD_H - 1) {
     		//pl = PL_ALL_WHITE;
-    		spr.x += 48;
-    		spr.y += 48;
+    		spr.x += SPR_TILE_INACTIVE_OFFSET;
 		}
 		
         draw_sprite(ctx, spr, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8 - yoff, pl);
@@ -119,9 +118,6 @@ void game_draw_post(struct Game* game, struct DrawContext* ctx) {
     	struct Pallete pl;
     	spr_from_index(game->tiles, i, &spr, &pl);
 
-		uint8_t x = xcoord(i);
-		uint8_t y = ycoord(i);
-
 		// Offset y if currently falling
 		uint8_t yoff = 0;
         if(game->falls[i] != 0) {
@@ -131,7 +127,7 @@ void game_draw_post(struct Game* game, struct DrawContext* ctx) {
         if((game->timer / 16) % 2 != 0) {
         	pl = PL_ALL_WHITE;
 		}
-        draw_sprite(ctx, spr, x * 8, game->yoff + y * 8 - yoff, pl);
+        draw_sprite(ctx, spr, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8 - yoff, pl);
 	}
 }
 

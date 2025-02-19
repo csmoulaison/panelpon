@@ -30,9 +30,10 @@
 #define PATH_ATLAS_SECONDARY "atlas_secondary.bmp"
 
 // Sprites
-#define SPR_PIXEL (struct IRect){56, 0, 1, 1}
-#define SPR_TILE_MOVE_OFFSET 8
+#define SPR_PIXEL (struct IRect){136, 0, 1, 1}
+#define SPR_TILE_MOVE_OFFSET 16
 #define SPR_TILE_MOVE_FRAMES 3
+#define SPR_TILE_INACTIVE_OFFSET 8
 #define SPR_TILE_MOVE_FRAME_LEN FRAMES_FLIP / (SPR_TILE_MOVE_FRAMES * 2)
 #define SPR_SQUARE   (struct IRect){0, 0, 8, 8}
 #define SPR_DIAMOND  (struct IRect){0, 8, 8, 8}
@@ -40,9 +41,9 @@
 #define SPR_CROSS    (struct IRect){0, 24, 8, 8}
 #define SPR_TRIANGLE (struct IRect){0, 32, 8, 8}
 #define SPR_CAPSULE  (struct IRect){0, 40, 8, 8}
-#define SPR_CURSOR_SQUARE (struct IRect){56, 0, 8, 8}
-#define SPR_CURSOR_HBIAS  (struct IRect){56, 8, 8, 8}
-#define SPR_CURSOR_VBIAS  (struct IRect){56, 16, 8, 8}
+#define SPR_CURSOR_SQUARE (struct IRect){136, 0, 8, 8}
+#define SPR_CURSOR_HBIAS  (struct IRect){136, 8, 8, 8}
+#define SPR_CURSOR_VBIAS  (struct IRect){136, 16, 8, 8}
 // Cursor animation
 #define SPR_CURSOR_MOVE_FRAMES 2
 #define SPR_CURSOR_MOVE_FRAME_LEN FRAMES_CURSOR / SPR_CURSOR_MOVE_FRAMES
