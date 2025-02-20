@@ -10,6 +10,8 @@
 #define SOUND_ONGOING  0
 #define SOUND_FINISHED 1
 
+// Updates the audio context, playing through its voices and updating their
+// associated soundstacks.
 void audio_update(struct AudioContext* ctx) {
     for(uint8_t i = 0; i < VOICES_LEN; i++) {
         struct Voice* voice = &ctx->voices[i];
@@ -33,8 +35,15 @@ void audio_update(struct AudioContext* ctx) {
     }
 }
 
+// This function is called by the PortAudio library at some appropriate
+// frequency (on it's own thread). It takes data from the active voices'
+// soundstacks and uses that to generate and send samples to PortAudio to be
+// outputted to the user's audio device.
+// 
+// TODO - Right now this function is iterating the t value of each sound in the
+// soundstack, but this should really be done in audio_update().
 int audio_callback(const void* input, void* output, unsigned long frames_per_buf, const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* userdata) {
-    // prevent unused variable warning
+    // Prevent unused variable warning
     (void)input; 
     (void)time_info;
     (void)status_flags;
@@ -88,18 +97,32 @@ int audio_callback(const void* input, void* output, unsigned long frames_per_buf
 	return 0;
 }
 
+// Plays a given sound, adding it to the first available voice's soundstack.
+// TODO - What do we want to do about voices?
+// TODO - Add to soundstack based on priority.
 void sound_play(struct AudioContext* ctx, struct Sound sound) {
     sound.amp = 0;
     sound.freq = 0;
     sound.t = 0;
     sound.active = true;
 
-	// TODO: Better voice selection
-    struct Voice* voice = &ctx->voices[0];
+	// XXX lmao @ this voice selection
+	struct Voice* voice = &ctx->voices[0];
     if(sound.callback == snd_match) {
         voice = &ctx->voices[1];
     }
 
+	// XXX No bounds checking on the soundstack. Eventually replace with priority
+	// checking, so I'm not too worried about it for now.
     voice->soundstack[voice->soundstack_len] = sound;
     voice->soundstack_len++;
+}
+
+// Calls sound_play() with fields passed in parametrically for convenience.
+void sound_play_new(struct AudioContext* ctx, void(*callback)(struct Sound* sound), uint8_t priority, void* data) {
+    struct Sound sound;
+    sound.callback = callback;
+    sound.priority = priority;
+    sound.data = data;
+	sound_play(ctx, sound);
 }

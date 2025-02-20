@@ -37,5 +37,6 @@ struct AudioContext {
 void audio_update(struct AudioContext* ctx);
 int audio_callback(const void* input, void* output, unsigned long frames_len, const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* userdata);
 void sound_play(struct AudioContext* ctx, struct Sound sound);
+void sound_play_new(struct AudioContext* ctx, void(*callback)(struct Sound* sound), uint8_t priority, void* data);
 
 #endif // audio_h_INCLUDED

@@ -78,7 +78,7 @@ void check_matches(struct Game* game, struct AudioContext* audio) {
 	}
 
 	if(new_len > 0) {
-		game->timer = FRAMES_HITCH;
+		game->yoff_countdown = FRAMES_HITCH;
 
 		struct Sound sound;
     	sound.priority = 1;

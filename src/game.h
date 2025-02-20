@@ -26,6 +26,7 @@ struct Game {
 	uint16_t timer;
 	uint8_t yoff;
 	uint8_t yoff_countdown;
+	bool grace_period;
 
 	// Cursor, including movement animation state
     uint8_t cursor;
@@ -45,5 +46,7 @@ struct Game {
 void game_init(struct Game* game);
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
 void game_tick(struct Game* game, struct AudioContext* audio); 
+
+bool tiles_reached_top(struct Game* game);
 
 #endif // game_h_INCLUDED

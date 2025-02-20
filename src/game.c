@@ -7,11 +7,13 @@
 #include "board.h"
 #include "matches.h"
 
-
+// Initializes a game round. Called every time a new round is started.
 void game_init(struct Game* game) {
 	game->yoff = 0;
+
 	game->yoff_countdown = FRAMES_YOFF;
-	game->timer = 0;
+	//game->timer = 0;
+	game->grace_period = false;
 
 	game->cursor = game->cursor_start_pos(game);
 	game->cursor_prev = game->cursor;
@@ -36,6 +38,7 @@ void game_init(struct Game* game) {
 	game->state = GAME_PRE;
 }
 
+// Modifies the game state based on player input. Immediately precedes game_tick().
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio) {
     uint8_t cursor_new = game->move_cursor(game, input);
 	if(cursor_new != game->cursor) {
@@ -63,41 +66,47 @@ void game_control(struct Game* game, struct Input* input, struct AudioContext* a
 	}
 }
 
+// Simulates a single tick of game logic. 
 void game_tick(struct Game* game, struct AudioContext* audio) {
 	bool update_matches = false;
 
-	if(game->timer != 0) {
-    	game->timer--;
-		goto postmove;
+	game->yoff_countdown--;
+	if(game->yoff_countdown != 0) {
+		goto post_timer_logic;
 	}
-	// Move tiles up, generating new tiles as needed
-	game->yoff_countdown -= 1;
-	if(game->yoff_countdown == 0) {
-    	game->yoff += 1;
-    	game->yoff_countdown = FRAMES_YOFF;
+
+	if(!game->grace_period) {
+    	goto iterate_yoff;
 	}
+
+    // Grace period logic
+	if(tiles_reached_top(game)) {
+		game->state = GAME_POST;
+		sound_play_new(audio, snd_lose, 1, NULL);
+		return;
+	} 		
+
+	// Player managed to clear up top of the board before the grace period expired.
+	game->grace_period = false;
+	goto shift_board;
+
+iterate_yoff:
+	game->yoff_countdown = FRAMES_YOFF;
+
+	game->yoff += 1;
 	if(game->yoff != 8) {
-		goto postmove;
+    	goto post_timer_logic;
 	}
 
-	// Only do this bit if we are resetting yoff
-
-	// End game if we have tiles at the top
-	for(uint8_t x = 0; x < BOARD_W; x++) {
-		if(game->tiles[bindex(x, 0)] != 0) {
-			game->state = GAME_POST;
-
-    		struct Sound sound;
-    		sound.priority = 1;
-    		sound.callback = snd_lose;
-    		sound_play(audio, sound);
-			return;
-		}
+	if(tiles_reached_top(game)) {
+		game->yoff_countdown = FRAMES_GRACE;
+		game->grace_period = true;
+		goto post_timer_logic;
 	}
+	goto shift_board;
 
-	game->yoff = 0;
-
-	// Move everything up one tile, including events
+// Move everything up one tile, including events
+shift_board:
 	if(game->cursor >= BOARD_W) {
 		game->cursor -= BOARD_W;
 	}
@@ -120,11 +129,10 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
 	}
 
 	// Now that we have a new row of tiles, we need to check for matches.
-	update_matches = true;
+    update_matches = true;
+    game->yoff = 0;
 
-// Skipped to if we haven't reset yoff
-postmove:
-
+post_timer_logic:
 	// Update event ticks
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
     	if(game->buf_falls[i] != 0) {
@@ -176,4 +184,13 @@ postmove:
 	if(update_matches) {
 		check_matches(game, audio);
 	}
+}
+
+bool tiles_reached_top(struct Game* game) {
+	for(uint8_t x = 0; x < BOARD_W; x++) {
+		if(game->tiles[bindex(x, 0)] != 0) {
+    		return true;
+		}
+	}
+	return false;
 }

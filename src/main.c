@@ -1,5 +1,4 @@
 #include "stdio.h"
-
 #include "init.h"
 #include "loop.h"
 #include "destroy.h"

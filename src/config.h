@@ -8,18 +8,18 @@
 // Lengths config
 #define FRAMES_YOFF 32
 #define FRAMES_FLIP 24
-// actually 6
 #define FRAMES_FALL 6
 #define FRAMES_EXPLODE 125
-#define FRAMES_HITCH 125
+#define FRAMES_HITCH 200
 #define FRAMES_CURSOR 12
+#define FRAMES_GRACE FRAMES_HITCH
 
 // Screen config
 #define LOGICAL_W 216
 #define LOGICAL_H 216
 
 // Match config
-#define SHAPES_LEN 4
+#define SHAPES_LEN 5
 #define BOARD_W 8
 #define BOARD_H 9
 #define BOARD_LEN BOARD_W * BOARD_H
