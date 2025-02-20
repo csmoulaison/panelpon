@@ -37,6 +37,11 @@ void draw_anim_flip(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, st
 	draw_sprite_flip(ctx, src, x, y, pl, flip);
 }
 
+void draw_anim_flip_vert(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, int16_t x, int16_t y, struct Pallete pl, SDL_RendererFlip flip) {
+	src.y += (frame / framelen) * src.h;
+	draw_sprite_flip(ctx, src, x, y, pl, flip);
+}
+
 void draw_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl) {
     uint8_t* c1 = (uint8_t*)&pl.primary;
     SDL_SetTextureColorMod(ctx->atlas_primary,   c1[0], c1[1], c1[2]);

@@ -123,7 +123,8 @@ shift_board:
 		}
 	}
 	for(uint8_t i = 0; i < game->swaps_len; i++) {
-		game->swaps[i].a = yoffset(game->swaps[i].b, -1);
+		game->swaps[i].a = yoffset(game->swaps[i].a, -1);
+		game->swaps[i].b = yoffset(game->swaps[i].b, -1);
 	}
 
 	// Generate new tiles

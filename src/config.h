@@ -6,7 +6,7 @@
 #define DT MS_PER_FRAME / 1000.0
 
 // Lengths config
-#define FRAMES_YOFF 32
+#define FRAMES_YOFF 40
 #define FRAMES_SWAP 24
 #define FRAMES_FALL 6
 #define FRAMES_MATCH 125
@@ -20,7 +20,7 @@
 
 // Match config
 #define SHAPES_LEN 5
-#define BOARD_W 6
+#define BOARD_W 4
 #define BOARD_H 13
 #define BOARD_LEN BOARD_W * BOARD_H
 
@@ -32,6 +32,7 @@
 // Sprites
 #define SPR_PIXEL (struct IRect){136, 0, 1, 1}
 #define SPR_TILE_MOVE_OFFSET 16
+#define SPR_TILE_MOVE_VERT_OFFSET 64
 #define SPR_TILE_MOVE_FRAMES 3
 #define SPR_TILE_INACTIVE_OFFSET 8
 #define SPR_TILE_MOVE_FRAME_LEN FRAMES_SWAP / (SPR_TILE_MOVE_FRAMES * 2)

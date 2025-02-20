@@ -66,9 +66,10 @@ bool cur_vert_swap(struct Game* game) {
 		game->swaps_len--;
 	}
 
-	game->swaps[game->cursor].a = game->cursor;
-	game->swaps[game->cursor].b = down;
-	game->swaps[game->cursor].t = FRAMES_SWAP;
+	game->swaps[game->swaps_len].a = game->cursor;
+	game->swaps[game->swaps_len].b = down;
+	game->swaps[game->swaps_len].t = FRAMES_SWAP;
+	game->swaps_len++;
 
 	// If we flip over an empty space, keep track of that.
 	/* ? do we need this for vert?

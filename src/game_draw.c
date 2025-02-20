@@ -46,14 +46,44 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
     			continue;
 			}
 
-        	struct IRect spr;
-        	struct Pallete pl;
-        	spr_from_index(game->tiles, pos, &spr, &pl);
-        	spr.w *= 2;
-        	spr.x += SPR_TILE_MOVE_OFFSET;
+			// Get sprite offset and orientation based on adjacency of the other tile.
+			// TODO time to rework animations and the way we get sprites to better
+			// reflect needs.
+    		uint8_t otherpos = game->swaps[i].positions[!j]; // Gives 0 when 1 and 1 when 0. How naughty.
+    		SDL_RendererFlip flip;
 
-        	draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, drawx * 8, 8 - game->yoff + drawy * 8, pl, j == 0);
-        	//draw_anim(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, drawx * 8, 8 - game->yoff + drawy * 8, pl);
+    		struct IRect spr;
+    		spr.w = 8;
+    		spr.h = 8;
+
+			bool vert = false;
+    		if(otherpos == xoffset(pos, -1)) {
+				flip = SDL_FLIP_NONE;
+    		} else if(otherpos == xoffset(pos, 1)) {
+        		flip = SDL_FLIP_HORIZONTAL;
+    		} else if(otherpos == yoffset(pos, -1)) {
+        		vert = true;
+        		flip = SDL_FLIP_NONE;
+    		} else if(otherpos == yoffset(pos, 1)) {
+        		vert = true;
+        		flip = SDL_FLIP_VERTICAL;
+    		}
+
+        	struct IRect nullspr;
+        	struct Pallete pl;
+        	spr_from_index(game->tiles, pos, &nullspr, &pl);
+
+    		if(!vert) {
+				spr.x = SPR_TILE_MOVE_OFFSET;
+				spr.y = game->tiles[pos] * 8;
+				spr.w *= 2;
+            	draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, drawx * 8, 8 - game->yoff + drawy * 8, pl, flip);
+    		} else {
+        		printf("vert!\n");
+        		spr.x = SPR_TILE_MOVE_VERT_OFFSET + game->tiles[pos] * 8;
+        		spr.h *= 2;
+            	draw_anim_flip_vert(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, drawx * 8, 8 - game->yoff + drawy * 8, pl, flip);
+    		}
 		}
 
 		// Skip flipping tiles during tile draw below

@@ -29,6 +29,7 @@ void draw_sprite(struct DrawContext* ctx, struct IRect src, int16_t x, int16_t y
 void draw_sprite_flip(struct DrawContext* ctx, struct IRect src, int16_t x, int16_t y, struct Pallete pl, SDL_RendererFlip flip);
 void draw_anim(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, int16_t x, int16_t y, struct Pallete pl);
 void draw_anim_flip(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, int16_t x, int16_t y, struct Pallete pl, SDL_RendererFlip flip);
+void draw_anim_flip_vert(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, int16_t x, int16_t y, struct Pallete pl, SDL_RendererFlip flip);
 void draw_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl);
 void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl);
 
