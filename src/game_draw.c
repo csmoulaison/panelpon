@@ -31,37 +31,34 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 	}
 
 	// Draw flips
-	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-		if(game->flips[i] < (FRAMES_FLIP / 2) + 1) {
+	for(uint8_t i = 0; i < game->swaps_len; i++) {
+		if(game->swaps[i].t < (FRAMES_SWAP / 2) + 1) {
     		continue;
 		}
     	
-    	uint8_t flipx = xcoord(i);
-    	uint8_t flipy = ycoord(i);
+		float anim_t = FRAMES_SWAP - game->swaps[i].t;
+		uint8_t drawx = xcoord(game->swaps[i].a);
+		uint8_t drawy = ycoord(game->swaps[i].a);
 
-    	struct IRect spr;
-    	struct Pallete pl;
-		float anim_t = FRAMES_FLIP - game->flips[i];
+		for(int j = 0; j < 2; j++) {
+			uint8_t pos = game->swaps[i].positions[j];
+			if(game->tiles[pos] == 0) {
+    			continue;
+			}
 
-		if(game->tiles[i] != 0) {
-        	spr_from_index(game->tiles, i, &spr, &pl);
+        	struct IRect spr;
+        	struct Pallete pl;
+        	spr_from_index(game->tiles, pos, &spr, &pl);
         	spr.w *= 2;
         	spr.x += SPR_TILE_MOVE_OFFSET;
-        	draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, flipx * 8, 8 - game->yoff + flipy * 8, pl, true);
-		}
 
-		// We assume i + 1 is safe, because flips never appear at a right edge tile
-		if(game->tiles[i + 1] != 0) {
-        	spr_from_index(game->tiles, i + 1, &spr, &pl);
-        	spr.w *= 2;
-        	spr.x += SPR_TILE_MOVE_OFFSET;
-        	draw_anim(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, flipx * 8, 8 - game->yoff + flipy * 8, pl);
+        	draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, drawx * 8, 8 - game->yoff + drawy * 8, pl, j == 0);
+        	//draw_anim(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, drawx * 8, 8 - game->yoff + drawy * 8, pl);
 		}
 
 		// Skip flipping tiles during tile draw below
-    	skips[i] = true;
-    	// See above on safety of i + 1
-    	skips[xoffset(i, 1)] = true;
+    	skips[game->swaps[i].a] = true;
+    	skips[game->swaps[i].b] = true;
 	}
 
 	// Tile draw - skipping skips
@@ -80,7 +77,7 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 			yoff = (game->falls[i] * 8) / FRAMES_FALL;
         }
 
-        if(game->explodes[i] != 0 && (game->explodes[i] / 12) % 2 != 0) {
+        if(game->matches[i] != 0 && (game->matches[i] / 12) % 2 != 0) {
         	pl = PL_ALL_WHITE;
 		}
 		if(ycoord(i) == BOARD_H - 1) {
@@ -96,8 +93,8 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 
 	// Draw debug gizmos
 	for(int i = 0; i < BOARD_LEN; i++) {
-		//if(flipping(game, i)) draw_sprite(ctx, SPR_DEBUG_FLIP, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_YELLOW);		
-		//if(exploding(game, i)) draw_sprite(ctx, SPR_DEBUG_EXPLODE, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_BLUE);		
+		//if(swapping(game, i)) draw_sprite(ctx, SPR_DEBUG_SWAP, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_YELLOW);		
+		//if(matching(game, i)) draw_sprite(ctx, SPR_DEBUG_MATCH, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_BLUE);		
 		//if(falling(game, i)) draw_sprite(ctx, SPR_DEBUG_FALL, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_GREEN);
 		//if(fall_buffered(game, i)) draw_sprite(ctx, SPR_DEBUG_BUF, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_RED);
 	}
@@ -124,7 +121,7 @@ void game_draw_post(struct Game* game, struct DrawContext* ctx) {
 			yoff = (game->falls[i] * 8) / FRAMES_FALL;
         }
 
-        if((game->timer / 16) % 2 != 0) {
+        if((game->yoff_countdown / 16) % 2 != 0) {
         	pl = PL_ALL_WHITE;
 		}
         draw_sprite(ctx, spr, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8 - yoff, pl);

@@ -7,9 +7,9 @@
 
 // Lengths config
 #define FRAMES_YOFF 32
-#define FRAMES_FLIP 24
+#define FRAMES_SWAP 24
 #define FRAMES_FALL 6
-#define FRAMES_EXPLODE 125
+#define FRAMES_MATCH 125
 #define FRAMES_HITCH 200
 #define FRAMES_CURSOR 12
 #define FRAMES_GRACE FRAMES_HITCH
@@ -20,8 +20,8 @@
 
 // Match config
 #define SHAPES_LEN 5
-#define BOARD_W 8
-#define BOARD_H 9
+#define BOARD_W 6
+#define BOARD_H 13
 #define BOARD_LEN BOARD_W * BOARD_H
 
 // Paths
@@ -34,7 +34,7 @@
 #define SPR_TILE_MOVE_OFFSET 16
 #define SPR_TILE_MOVE_FRAMES 3
 #define SPR_TILE_INACTIVE_OFFSET 8
-#define SPR_TILE_MOVE_FRAME_LEN FRAMES_FLIP / (SPR_TILE_MOVE_FRAMES * 2)
+#define SPR_TILE_MOVE_FRAME_LEN FRAMES_SWAP / (SPR_TILE_MOVE_FRAMES * 2)
 #define SPR_SQUARE   (struct IRect){0, 0, 8, 8}
 #define SPR_DIAMOND  (struct IRect){0, 8, 8, 8}
 #define SPR_ROUND    (struct IRect){0, 16, 8, 8}
@@ -50,9 +50,9 @@
 // #define SPR_CURSOR_MOVE_R  (struct IRect){18, 48, 27, 10}
 // #define SPR_CURSOR_MOVE_D  (struct IRect){0, 58, 18, 19}
 // Debug sprites
-#define SPR_DEBUG_FLIP (struct IRect){0, 96, 8, 8}
-#define SPR_DEBUG_FALL (struct IRect){8, 96, 8, 8}
-#define SPR_DEBUG_EXPLODE (struct IRect){16, 96, 8, 8}
-#define SPR_DEBUG_BUF (struct IRect){24, 96, 8, 8}
+#define SPR_DEBUG_SWAP  (struct IRect){240, 0, 8, 8}
+#define SPR_DEBUG_FALL  (struct IRect){248, 0, 8, 8}
+#define SPR_DEBUG_MATCH (struct IRect){256, 0, 8, 8}
+#define SPR_DEBUG_BUF   (struct IRect){264, 0, 8, 8}
 
 #endif // config_h_INCLUDED

@@ -20,7 +20,7 @@ void check_matches(struct Game* game, struct AudioContext* audio) {
 			uint8_t xoff = 0;
 			while(x + xoff < BOARD_W) {
         		uint8_t check = xoffset(i, xoff);
-    			if(game->tiles[check] != tile || exploding(game, check) || falling(game, check) || fall_buffered(game, check)) {
+    			if(game->tiles[check] != tile || matching(game, check) || falling(game, check) || fall_buffered(game, check)) {
     				break;
     			}
     			matches++;
@@ -54,7 +54,7 @@ void check_matches(struct Game* game, struct AudioContext* audio) {
 			uint8_t yoff = 0;
 			while(y + yoff < BOARD_H - 1) {
         		uint8_t check = yoffset(i, yoff);
-    			if(game->tiles[check] != tile || exploding(game, check) || falling(game, check) || fall_buffered(game, check)) {
+    			if(game->tiles[check] != tile || matching(game, check) || falling(game, check) || fall_buffered(game, check)) {
     				break;
     			}
     			matches++;
@@ -74,7 +74,7 @@ void check_matches(struct Game* game, struct AudioContext* audio) {
 	}
 
 	for(int i = 0; i < new_len; i++) {
-    	game->explodes[new[i]] = FRAMES_EXPLODE;
+    	game->matches[new[i]] = FRAMES_MATCH;
 	}
 
 	if(new_len > 0) {

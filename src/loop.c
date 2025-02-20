@@ -37,7 +37,7 @@ void loop(struct Context* ctx) {
             	game_tick(&ctx->game, &ctx->audio);
                 break;
     		case GAME_POST:
-        		ctx->game.timer -= 1;
+        		ctx->game.yoff_countdown -= 1;
             	if(ctx->input.select.just_pressed) {
                 	game_init(&ctx->game);
                 	struct Sound sound;

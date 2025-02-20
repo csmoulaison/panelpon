@@ -4,8 +4,8 @@
 #include "game.h"
 
 bool empty(struct Game* game, uint8_t i);
-bool exploding(struct Game* game, uint8_t i);
-bool flipping(struct Game* game, uint8_t i);
+bool matching(struct Game* game, uint8_t i);
+bool swapping(struct Game* game, uint8_t i);
 bool falling(struct Game* game, uint8_t i);
 bool fall_buffered(struct Game* game, uint8_t i);
 

@@ -11,7 +11,7 @@ bool cur_classic_swap(struct Game* game) {
     // Check if we can flip
 	if((empty(game, game->cursor) && empty(game, xoffset(game->cursor, 1))) 
 	|| fall_buffered(game, game->cursor) || fall_buffered(game, xoffset(game->cursor, 1))
-	|| exploding(game, game->cursor) || exploding(game, xoffset(game->cursor, 1)) 
+	|| matching(game, game->cursor) || matching(game, xoffset(game->cursor, 1)) 
 	|| falling(game, game->cursor) || falling(game, xoffset(game->cursor , 1))) {
     	return false;
 	}
@@ -41,13 +41,21 @@ bool cur_classic_swap(struct Game* game) {
 	game->tiles[game->cursor] = game->tiles[right];
 	game->tiles[right] = tmp;
 
-	// Cancel overlapping flips/falls
-	uint8_t curx = xcoord(game->cursor);
-	if(curx < BOARD_W - 1) {
-    	game->flips[right] = 0;
+	// Eliminate adjacent swaps
+	uint8_t elims[game->swaps_len];
+	uint8_t elims_len = 0;
+	for(int i = 0; i < game->swaps_len; i++) {
+    	uint8_t a = game->swaps[i].a;
+    	uint8_t b = game->swaps[i].b;
+		if(a == game->cursor - 1 || a == game->cursor || a == right
+		|| b == game->cursor - 1 || b == game->cursor || b == right) {
+			elims[elims_len] = i;
+			elims_len++;
+		}
 	}
-	if(curx > 0) {
-		game->flips[xoffset(game->cursor, -1)] = 0;
+	for(int i = 0; i < elims_len; i++) {
+		game->swaps[elims[i]] = game->swaps[game->swaps_len - 1];
+		game->swaps_len--;
 	}
 
 	// Do we actually need to cancel falls? Isn't this a bad scenario?
@@ -55,13 +63,16 @@ bool cur_classic_swap(struct Game* game) {
 	//game->falls[right] = 0;
 	//game->falls[game->cursor] = 0;
 
-	game->flips[game->cursor] = FRAMES_FLIP;
+	game->swaps[game->swaps_len].a = game->cursor;
+	game->swaps[game->swaps_len].b = right;
+	game->swaps[game->swaps_len].t = FRAMES_SWAP;
+	game->swaps_len++;
 
 	// If we flip over an empty space, keep track of that.
 	for(int i = 0; i < 2; i++) {
 		if(empty(game, offset(game->cursor, i, 1))) {
     		printf("buf: %i, %i\n", xcoord(game->cursor + i), ycoord(game->cursor + i));
-			game->buf_falls[xoffset(game->cursor, i)] = FRAMES_FLIP;
+			game->buf_falls[xoffset(game->cursor, i)] = FRAMES_SWAP;
 		}
 	}
 

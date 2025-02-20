@@ -17,7 +17,7 @@ bool cur_vert_swap(struct Game* game) {
     // Check if we can flip
 	if((empty(game, game->cursor) && empty(game, yoffset(game->cursor, 1))) 
 	|| fall_buffered(game, game->cursor) || fall_buffered(game, yoffset(game->cursor, 1))
-	|| exploding(game, game->cursor) || exploding(game, yoffset(game->cursor, 1)) 
+	|| matching(game, game->cursor) || matching(game, yoffset(game->cursor, 1)) 
 	|| falling(game, game->cursor)) {
     	return false;
 	}
@@ -49,17 +49,26 @@ bool cur_vert_swap(struct Game* game) {
 	game->tiles[game->cursor] = game->tiles[down];
 	game->tiles[down] = tmp;
 
-	// Cancel overlapping flip animations
-	uint8_t curx = xcoord(game->cursor);
-	if(curx > 0) {
-   		game->flips[down] = 0;
-   		game->falls[down] = 0;
+	// Eliminate adjacent swaps
+	uint8_t elims[game->swaps_len];
+	uint8_t elims_len = 0;
+	for(int i = 0; i < game->swaps_len; i++) {
+    	uint8_t a = game->swaps[i].a;
+    	uint8_t b = game->swaps[i].b;
+		if(a == yoffset(game->cursor, -1) || a == game->cursor || a == down
+		|| b == yoffset(game->cursor, -1) || b == game->cursor || b == down) {
+			elims[elims_len] = i;
+			elims_len++;
+		}
 	}
-	if(curx < BOARD_W - 2) {
-		game->flips[game->cursor] = 0;
-   		game->falls[game->cursor] = 0;
+	for(int i = 0; i < elims_len; i++) {
+		game->swaps[elims[i]] = game->swaps[game->swaps_len - 1];
+		game->swaps_len--;
 	}
-	game->flips[game->cursor] = FRAMES_FLIP;
+
+	game->swaps[game->cursor].a = game->cursor;
+	game->swaps[game->cursor].b = down;
+	game->swaps[game->cursor].t = FRAMES_SWAP;
 
 	// If we flip over an empty space, keep track of that.
 	/* ? do we need this for vert?

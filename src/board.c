@@ -8,16 +8,19 @@ bool empty(struct Game* game, uint8_t i) {
 }
 
 // Returns true if the given position is currently exploding (explodes[i] != 0).
-bool exploding(struct Game* game, uint8_t i) {
-	return game->explodes[i] != 0;
+bool matching(struct Game* game, uint8_t i) {
+	return game->matches[i] != 0;
 }
 
-// Returns true if the given position is currently part of an ongoing flip. This
-// checks both the left and right positions associated with the flip, with the
-// left being the one stored in the flips[] array.
-bool flipping(struct Game* game, uint8_t i) {
-    bool flipping = game->flips[i] != 0;
-    return flipping || (xcoord(i) != 0 && game->flips[xoffset(i, -1)] != 0);
+// Returns true if the given position is currently part of an ongoing swap. This
+// checks both the a and b positions associated with the swap.
+bool swapping(struct Game* game, uint8_t i) {
+    for(uint8_t j = 0; j < game->swaps_len; j++) {
+		if(game->swaps[j].a == i || game->swaps[j].b == i) {
+    		return true;
+		}
+    }
+    return false;
 }
 
 // Returns true if the given position is currently part of an ongoing fall. This
