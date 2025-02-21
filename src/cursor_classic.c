@@ -1,78 +1,51 @@
 #include "cursor_classic.h"
 
 #include "board.h"
+#include "shift.h"
 
 uint8_t cur_classic_start_pos(struct Game* game) {
     (void)game;
 	return BOARD_LEN / 2 - 1;
 }
 
-bool cur_classic_swap(struct Game* game) {
-    // Check if we can flip
-	if((empty(game, game->cursor) && empty(game, xoffset(game->cursor, 1))) 
-	|| fall_buffered(game, game->cursor) || fall_buffered(game, xoffset(game->cursor, 1))
-	|| matching(game, game->cursor) || matching(game, xoffset(game->cursor, 1)) 
-	|| falling(game, game->cursor) || falling(game, xoffset(game->cursor , 1))) {
+bool cur_classic_shift(struct Game* game) {
+	uint8_t from = game->cursor;
+	uint8_t to = xoffset(game->cursor, 1);
+
+	if(!eligible_for_shift(game, from, to)) {
     	return false;
 	}
 
 	// Don't allow flip if a cursor tile is empty with a tile somewhere above it.
 	for(int i = 0; i < 2; i++) {
-    	uint8_t check_cursor = xoffset(game->cursor, i);
+    	uint8_t cur_check = xoffset(game->cursor, i);
 
-    	if(!empty(game, check_cursor)) {
+    	if(!empty(game, cur_check)) {
         	continue;
     	}
 
 		for(int j = 1; j < BOARD_H; j++) {
-			if(check_cursor / BOARD_W - j < 0) {
+			// TODO - Change these conditions to use offset functions.
+			if(cur_check / BOARD_W - j < 0) {
 				break;
 			}
-			if(!empty(game, check_cursor - j * BOARD_W)) {
+			if(!empty(game, cur_check - j * BOARD_W)) {
 				return false;
 			}
 		}
 	}
 
-	// Only execute if we are able to flip
-	uint8_t right = xoffset(game->cursor, 1);
-
-	uint8_t tmp = game->tiles[game->cursor];
-	game->tiles[game->cursor] = game->tiles[right];
-	game->tiles[right] = tmp;
-
-	// Eliminate adjacent swaps
-	uint8_t elims[game->swaps_len];
-	uint8_t elims_len = 0;
-	for(int i = 0; i < game->swaps_len; i++) {
-    	uint8_t a = game->swaps[i].a;
-    	uint8_t b = game->swaps[i].b;
-		if(a == game->cursor - 1 || a == game->cursor || a == right
-		|| b == game->cursor - 1 || b == game->cursor || b == right) {
-			elims[elims_len] = i;
-			elims_len++;
-		}
-	}
-	for(int i = 0; i < elims_len; i++) {
-		game->swaps[elims[i]] = game->swaps[game->swaps_len - 1];
-		game->swaps_len--;
-	}
+	swap_tiles(game, from, to);
 
 	// Do we actually need to cancel falls? Isn't this a bad scenario?
 	// Result: seems not upon shallow examination
 	//game->falls[right] = 0;
 	//game->falls[game->cursor] = 0;
 
-	game->swaps[game->swaps_len].a = game->cursor;
-	game->swaps[game->swaps_len].b = right;
-	game->swaps[game->swaps_len].t = FRAMES_SWAP;
-	game->swaps_len++;
-
 	// If we flip over an empty space, keep track of that.
 	for(int i = 0; i < 2; i++) {
 		if(empty(game, offset(game->cursor, i, 1))) {
-    		printf("buf: %i, %i\n", xcoord(game->cursor + i), ycoord(game->cursor + i));
-			game->buf_falls[xoffset(game->cursor, i)] = FRAMES_SWAP;
+			game->buf_falls[xoffset(game->cursor, i)] = FRAMES_SHIFT;
 		}
 	}
 

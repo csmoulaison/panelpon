@@ -3,8 +3,8 @@
 
 #include "audio.h"
 
-void snd_flip(struct Sound* sound);
-void snd_noflip(struct Sound* sound);
+void snd_shift(struct Sound* sound);
+void snd_noshift(struct Sound* sound);
 void snd_move(struct Sound* sound);
 void snd_match(struct Sound* sound);
 void snd_lose(struct Sound* sound);

@@ -1,85 +1,22 @@
 #include "cursor_vert.h"
 
 #include "board.h"
-
-// TODO: Things to disallow:
-// - 
+#include "shift.h"
 
 uint8_t cur_vert_start_pos(struct Game* game) {
     (void)game;
 	return BOARD_LEN / 2 - 1;
 }
 
-bool cur_vert_swap(struct Game* game) {
-	// Changes to classic so far:
-   	// - Position checking at start offset by y not x
-    
-    // Check if we can flip
-	if((empty(game, game->cursor) && empty(game, yoffset(game->cursor, 1))) 
-	|| fall_buffered(game, game->cursor) || fall_buffered(game, yoffset(game->cursor, 1))
-	|| matching(game, game->cursor) || matching(game, yoffset(game->cursor, 1)) 
-	|| falling(game, game->cursor)) {
+bool cur_vert_shift(struct Game* game) {
+	uint8_t from = game->cursor;
+	uint8_t to = yoffset(game->cursor, 1);
+		
+	if(!eligible_for_shift(game, from, to)) {
     	return false;
 	}
 
-	// Don't allow flip if a cursor tile is empty with a tile somewhere above it.
-	/* ? do we need this for vert?
-	for(int i = 0; i < 2; i++) {
-    	uint8_t check_cursor = xoffset(game->cursor, i);
-
-    	if(!empty(game, check_cursor)) {
-        	continue;
-    	}
-
-		for(int j = 1; j < BOARD_H; j++) {
-			if(check_cursor / BOARD_W - j < 0) {
-				break;
-			}
-			if(!empty(game, check_cursor - j * BOARD_W)) {
-				return false;
-			}
-		}
-	}
-	*/
-
-	// Only execute if we are able to flip
-	uint8_t down = yoffset(game->cursor, 1);
-
-	uint8_t tmp = game->tiles[game->cursor];
-	game->tiles[game->cursor] = game->tiles[down];
-	game->tiles[down] = tmp;
-
-	// Eliminate adjacent swaps
-	uint8_t elims[game->swaps_len];
-	uint8_t elims_len = 0;
-	for(int i = 0; i < game->swaps_len; i++) {
-    	uint8_t a = game->swaps[i].a;
-    	uint8_t b = game->swaps[i].b;
-		if(a == yoffset(game->cursor, -1) || a == game->cursor || a == down
-		|| b == yoffset(game->cursor, -1) || b == game->cursor || b == down) {
-			elims[elims_len] = i;
-			elims_len++;
-		}
-	}
-	for(int i = 0; i < elims_len; i++) {
-		game->swaps[elims[i]] = game->swaps[game->swaps_len - 1];
-		game->swaps_len--;
-	}
-
-	game->swaps[game->swaps_len].a = game->cursor;
-	game->swaps[game->swaps_len].b = down;
-	game->swaps[game->swaps_len].t = FRAMES_SWAP;
-	game->swaps_len++;
-
-	// If we flip over an empty space, keep track of that.
-	/* ? do we need this for vert?
-	for(int i = 0; i < 2; i++) {
-		if(empty(game, offset(game->cursor, i, 1)) {
-			game->buf_falls[xoffset(game->cursor, i)] = FRAMES_FLIP;
-		}
-	}
-	*/
-
+	swap_tiles(game, from, to);
 	return true;
 }
 

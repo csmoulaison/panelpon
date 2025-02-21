@@ -17,18 +17,17 @@ void game_init(struct Game* game) {
 	game->cursor_prev = game->cursor;
 	game->cursor_anim = FRAMES_CURSOR;
 
-	game->swaps_len = 0;
-
 	// Generate some starting tiles and initialize events to 0.
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
 		game->tiles[i] = rand() % (SHAPES_LEN + 1);
 		if(rand() % 2 == 0) {
-    		game->tiles[i] = 0;
+			game->tiles[i] = 0;
 		}
 
-		game->matches[i]  = 0;
-		game->falls[i]     = 0;
+		game->matches[i]   = 0;
+		game->falls[i]	   = 0;
 		game->buf_falls[i] = 0;
+		game->shifts[i].t  = 0;
 	}
 
 	// Clear top row of tiles
@@ -41,35 +40,28 @@ void game_init(struct Game* game) {
 
 // Modifies the game state based on player input. Immediately precedes game_tick().
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio) {
-    uint8_t cursor_new = game->move_cursor(game, input);
+	uint8_t cursor_new = game->move_cursor(game, input);
 	if(cursor_new != game->cursor) {
 		game->cursor_prev = game->cursor;
 		game->cursor_anim = 0;
 		game->cursor = cursor_new;
-
-		struct Sound sound;
-		sound.priority = 1;
-		sound.callback = snd_move;
-		sound_play(audio, sound);
+		sound_play_new(audio, snd_move, 1, NULL);
 	}
 
-	// Swap tiles
+	// Shift tiles
 	if(input->select.just_pressed) {
-    	struct Sound sound;
-    	sound.priority = 1;
-    	if(game->swap(game)) {
-        	sound.callback = snd_flip;
-        	check_matches(game, audio);
-        } else {
-        	sound.callback = snd_noflip;
-    	}
-    	sound_play(audio, sound);
+		if(game->shift(game)) {
+			check_matches(game, audio);
+			sound_play_new(audio, snd_shift, 1, NULL);
+		} else {
+			sound_play_new(audio, snd_noshift, 1, NULL);
+		}
 	}
 }
 
 // Simulates a single tick of game logic. 
 void game_tick(struct Game* game, struct AudioContext* audio) {
-	bool update_matches = false;
+	bool should_match = false;
 
 	game->yoff_countdown--;
 	if(game->yoff_countdown != 0) {
@@ -77,10 +69,10 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
 	}
 
 	if(!game->grace_period) {
-    	goto iterate_yoff;
+		goto iterate_yoff;
 	}
 
-    // Grace period logic
+	// Grace period logic
 	if(tiles_reached_top(game)) {
 		game->state = GAME_POST;
 		sound_play_new(audio, snd_lose, 1, NULL);
@@ -89,14 +81,14 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
 
 	// Player managed to clear up top of the board before the grace period expired.
 	game->grace_period = false;
-	goto shift_board;
+	goto generate_new_row;
 
 iterate_yoff:
 	game->yoff_countdown = FRAMES_YOFF;
 
 	game->yoff += 1;
 	if(game->yoff != 8) {
-    	goto post_yoff_logic;
+		goto post_yoff_logic;
 	}
 
 	if(tiles_reached_top(game)) {
@@ -104,10 +96,10 @@ iterate_yoff:
 		game->grace_period = true;
 		goto post_yoff_logic;
 	}
-	goto shift_board;
+	goto generate_new_row;
 
 // Move everything up one tile, including events
-shift_board:
+generate_new_row:
 	if(game->cursor >= BOARD_W) {
 		game->cursor -= BOARD_W;
 	}
@@ -116,15 +108,15 @@ shift_board:
 			uint8_t oldpos = bindex(x, y);
 			uint8_t newpos = yoffset(oldpos, -1);
 
-			game->tiles[newpos]     = game->tiles[oldpos];
+			game->tiles[newpos]	    = game->tiles[oldpos];
 			game->matches[newpos]   = game->matches[oldpos];
-			game->falls[newpos]     = game->falls[oldpos];
+			game->falls[newpos]	    = game->falls[oldpos];
 			game->buf_falls[newpos] = game->buf_falls[oldpos];
+
+			// TODO - does this work?
+			game->shifts[newpos] = game->shifts[oldpos];
+			game->shifts[newpos].to_pos = yoffset(game->shifts[newpos].to_pos, -1);
 		}
-	}
-	for(uint8_t i = 0; i < game->swaps_len; i++) {
-		game->swaps[i].a = yoffset(game->swaps[i].a, -1);
-		game->swaps[i].b = yoffset(game->swaps[i].b, -1);
 	}
 
 	// Generate new tiles
@@ -133,50 +125,42 @@ shift_board:
 	}
 
 	// Now that we have a new row of tiles, we need to check for matches.
-    update_matches = true;
-    game->yoff = 0;
+	should_match = true;
+	game->yoff = 0;
 
 // Thus marks the end of the gotos. They are, after all, considered harmful.
 post_yoff_logic:
 
 	// Update event ticks
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
-    	if(game->buf_falls[i] != 0) {
-    		game->buf_falls[i]--;
-    	}
-    	// Constructed this way, the following if statements will only deincrement
-    	// the associate values if they don't already equal 0.
-    	if(game->matches[i] != 0 && --game->matches[i] == 0) {
+		if(game->buf_falls[i] != 0) {
+			game->buf_falls[i]--;
+		}
+		// Constructed this way, the following if statements will only deincrement
+		// the associate values if they don't already equal 0.
+		if(game->matches[i] != 0 && --game->matches[i] == 0) {
 			game->tiles[i] = 0;
-    	}
-    	if(game->falls[i] != 0 && --game->falls[i] == 0) {
-    		update_matches = true;
-    	}
-	}
+		}
+		if(game->falls[i] != 0 && --game->falls[i] == 0) {
+			should_match = true;
+		}
 
-	// Update swap ticks - I think this works?
-	for(uint8_t i = 0; i < game->swaps_len; i++) {
-    	while(--game->swaps[i].t == 0) {
-			game->swaps[i] = game->swaps[game->swaps_len - 1];
-        	game->swaps_len--;
-    		update_matches = true;
-    		if(game->swaps_len - 1 == i) {
-				break;	
-    		}
-    	}
+		if(game->shifts[i].t != 0 && --game->shifts[i].t == 0) {
+			should_match = true;
+		}
 	}
 
 	// Check for tile falling
 	for(uint8_t x = 0; x < BOARD_W; x++) {
-        for(uint8_t y = BOARD_H - 1; y >= 1; y--) {
-            uint8_t i = bindex(x, y);
-        	uint8_t above = yoffset(i, -1);
+		for(uint8_t y = BOARD_H - 1; y >= 1; y--) {
+			uint8_t i = bindex(x, y);
+			uint8_t above = yoffset(i, -1);
 
-        	// Skip anything which isn't a non-empty tile on top of an empty tile,
-        	// also excluding falls which are already in motion on the upper tile.
-    		if(falling(game, above) || matching(game, above) || swapping(game, i) || swapping(game, above) || !empty(game, i) || empty(game, above)) {
-    			continue;
-    		}
+			// Skip anything which isn't a non-empty tile on top of an empty tile,
+			// also excluding falls which are already in motion on the upper tile.
+			if(falling(game, above) || matching(game, above) || shifting(game, i) || shifting(game, above) || !empty(game, i) || empty(game, above)) {
+				continue;
+			}
 
 			// Move the tile down
 			game->tiles[i] = game->tiles[above];
@@ -193,7 +177,7 @@ post_yoff_logic:
 		game->cursor_anim++;
 	}
 
-	if(update_matches) {
+	if(should_match) {
 		check_matches(game, audio);
 	}
 }
@@ -201,7 +185,7 @@ post_yoff_logic:
 bool tiles_reached_top(struct Game* game) {
 	for(uint8_t x = 0; x < BOARD_W; x++) {
 		if(game->tiles[bindex(x, 0)] != 0) {
-    		return true;
+			return true;
 		}
 	}
 	return false;

@@ -106,13 +106,13 @@ void sound_play(struct AudioContext* ctx, struct Sound sound) {
     sound.t = 0;
     sound.active = true;
 
-	// XXX lmao @ this voice selection
+	// XXX - lmao @ this voice selection
 	struct Voice* voice = &ctx->voices[0];
     if(sound.callback == snd_match) {
         voice = &ctx->voices[1];
     }
 
-	// XXX No bounds checking on the soundstack. Eventually replace with priority
+	// XXX - No bounds checking on the soundstack. Eventually replace with priority
 	// checking, so I'm not too worried about it for now.
     voice->soundstack[voice->soundstack_len] = sound;
     voice->soundstack_len++;

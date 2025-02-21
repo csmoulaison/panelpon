@@ -17,14 +17,8 @@ enum GameState {
 // Swaps occur between two different tiles and act as an "event" with a
 // countdown timer (t) which functions identically to the values of explodes[],
 // falls[], buf_falls[], etc.
-struct Swap {
-    union {
-        uint8_t positions[2];
-        struct {
-    		uint8_t a;
-    		uint8_t b;
-        };
-    };
+struct Shift {
+	uint8_t to_pos;
     uint8_t t;
 };
 
@@ -44,7 +38,7 @@ struct Game {
 	// Different cursor have different functionality with regards to movement,
 	// appearance, and tile swapping.
 	uint8_t (*cursor_start_pos)(struct Game* game);
-	bool (*swap)(struct Game* game);
+	bool (*shift)(struct Game* game);
 	void (*draw_cursor)(struct Game* game, struct DrawContext* draw);
 	uint8_t (*move_cursor)(struct Game* game, struct Input* input);
 
@@ -57,11 +51,7 @@ struct Game {
 	uint16_t matches  [BOARD_LEN];
 	uint8_t  falls    [BOARD_LEN]; // index references end   (lower) y pos
 	uint8_t  buf_falls[BOARD_LEN]; // index references start (upper) y pos
-
-	// These indices aren't associated with board positions. This is just a list of
-	// ongoing swaps.
-	struct Swap swaps[BOARD_LEN];
-	uint8_t swaps_len;
+	struct Shift shifts[BOARD_LEN]; // event timer encoded in shift.t
 };
 
 void game_init(struct Game* game);

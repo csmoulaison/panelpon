@@ -111,15 +111,14 @@ void init(struct Context* ctx) {
 	// Init game - when do function pointers get assigned?
 
 	ctx->game.cursor_start_pos = cur_classic_start_pos;
-	ctx->game.swap = cur_classic_swap;
+	ctx->game.shift = cur_classic_shift;
 	ctx->game.draw_cursor = cur_classic_draw;
 	ctx->game.move_cursor = cur_classic_move;
 
 	ctx->game.cursor_start_pos = cur_vert_start_pos;
-	ctx->game.swap = cur_vert_swap;
+	ctx->game.shift = cur_vert_shift;
 	ctx->game.draw_cursor = cur_vert_draw;
 	ctx->game.move_cursor = cur_vert_move;
-
 
 	game_init(&ctx->game);
 

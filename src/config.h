@@ -6,8 +6,8 @@
 #define DT MS_PER_FRAME / 1000.0
 
 // Lengths config
-#define FRAMES_YOFF 40
-#define FRAMES_SWAP 24
+#define FRAMES_YOFF 48
+#define FRAMES_SHIFT 24
 #define FRAMES_FALL 6
 #define FRAMES_MATCH 125
 #define FRAMES_HITCH 200
@@ -20,7 +20,7 @@
 
 // Match config
 #define SHAPES_LEN 5
-#define BOARD_W 4
+#define BOARD_W 6
 #define BOARD_H 13
 #define BOARD_LEN BOARD_W * BOARD_H
 
@@ -35,7 +35,7 @@
 #define SPR_TILE_MOVE_VERT_OFFSET 64
 #define SPR_TILE_MOVE_FRAMES 3
 #define SPR_TILE_INACTIVE_OFFSET 8
-#define SPR_TILE_MOVE_FRAME_LEN FRAMES_SWAP / (SPR_TILE_MOVE_FRAMES * 2)
+#define SPR_TILE_MOVE_FRAME_LEN FRAMES_SHIFT / (SPR_TILE_MOVE_FRAMES * 2)
 #define SPR_SQUARE   (struct IRect){0, 0, 8, 8}
 #define SPR_DIAMOND  (struct IRect){0, 8, 8, 8}
 #define SPR_ROUND    (struct IRect){0, 16, 8, 8}
@@ -51,7 +51,7 @@
 // #define SPR_CURSOR_MOVE_R  (struct IRect){18, 48, 27, 10}
 // #define SPR_CURSOR_MOVE_D  (struct IRect){0, 58, 18, 19}
 // Debug sprites
-#define SPR_DEBUG_SWAP  (struct IRect){240, 0, 8, 8}
+#define SPR_DEBUG_SHIFT  (struct IRect){240, 0, 8, 8}
 #define SPR_DEBUG_FALL  (struct IRect){248, 0, 8, 8}
 #define SPR_DEBUG_MATCH (struct IRect){256, 0, 8, 8}
 #define SPR_DEBUG_BUF   (struct IRect){264, 0, 8, 8}

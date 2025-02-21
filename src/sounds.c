@@ -5,7 +5,7 @@
 
 #define PI 3.14159265358979323846
 
-void snd_flip(struct Sound* sound) {
+void snd_shift(struct Sound* sound) {
 	float len = 0.2;
     float tmod = sin((sound->t * PI * 2) / len);
 
@@ -15,7 +15,7 @@ void snd_flip(struct Sound* sound) {
 	if(sound->t > len) sound->active = false;
 }
 
-void snd_noflip(struct Sound* sound) {
+void snd_noshift(struct Sound* sound) {
     float len = 0.1;
     float tmod = sound->t / len;
 
