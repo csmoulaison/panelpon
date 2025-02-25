@@ -43,6 +43,8 @@ void audio_update(struct AudioContext* ctx) {
 // TODO - Right now this function is iterating the t value of each sound in the
 // soundstack, but this should really be done in audio_update().
 int audio_callback(const void* input, void* output, unsigned long frames_per_buf, const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* userdata) {
+	return 0;
+	
     // Prevent unused variable warning
     (void)input; 
     (void)time_info;

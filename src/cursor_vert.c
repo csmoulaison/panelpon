@@ -2,6 +2,7 @@
 
 #include "board.h"
 #include "shift.h"
+#include "cursor.h"
 
 uint8_t cur_vert_start_pos(struct Game* game) {
     (void)game;
@@ -9,6 +10,7 @@ uint8_t cur_vert_start_pos(struct Game* game) {
 }
 
 bool cur_vert_shift(struct Game* game) {
+	// TODO - Disallow "ferrying" tiles upwards.
 	uint8_t from = game->cursor;
 	uint8_t to = yoffset(game->cursor, 1);
 		
@@ -31,18 +33,5 @@ void cur_vert_draw(struct Game* game, struct DrawContext* ctx) {
 }
 
 uint8_t cur_vert_move(struct Game* game, struct Input* input) {
-	uint8_t curx = xcoord(game->cursor);
-	uint8_t cury = ycoord(game->cursor);
-
-   	if(input->up.just_pressed)    cury -= 1;
-	if(input->down.just_pressed)  cury += 1;
-	if(input->left.just_pressed)  curx -= 1;
-	if(input->right.just_pressed) curx += 1;
-
-	if(cury == 255)        cury = 0;
-	if(curx == 255)        curx = 0;
-	if(cury > BOARD_H - 3) cury = BOARD_H - 3;
-	if(curx > BOARD_W - 1) curx = BOARD_W - 1; // -2 because cursor is 2x1
-
-	return bindex(curx, cury);
+	return cur_move_bounded(game, input, BOARD_W - 1, BOARD_H - 3);
 }

@@ -2,6 +2,7 @@
 
 #include "board.h"
 #include "shift.h"
+#include "cursor.h"
 
 uint8_t cur_classic_start_pos(struct Game* game) {
     (void)game;
@@ -10,45 +11,13 @@ uint8_t cur_classic_start_pos(struct Game* game) {
 
 bool cur_classic_shift(struct Game* game) {
 	uint8_t from = game->cursor;
-	uint8_t to = xoffset(game->cursor, 1);
+	uint8_t to   = xoffset(game->cursor, 1);
 
 	if(!eligible_for_shift(game, from, to)) {
     	return false;
 	}
 
-	// Don't allow flip if a cursor tile is empty with a tile somewhere above it.
-	for(int i = 0; i < 2; i++) {
-    	uint8_t cur_check = xoffset(game->cursor, i);
-
-    	if(!empty(game, cur_check)) {
-        	continue;
-    	}
-
-		for(int j = 1; j < BOARD_H; j++) {
-			// TODO - Change these conditions to use offset functions.
-			if(cur_check / BOARD_W - j < 0) {
-				break;
-			}
-			if(!empty(game, cur_check - j * BOARD_W)) {
-				return false;
-			}
-		}
-	}
-
 	swap_tiles(game, from, to);
-
-	// Do we actually need to cancel falls? Isn't this a bad scenario?
-	// Result: seems not upon shallow examination
-	//game->falls[right] = 0;
-	//game->falls[game->cursor] = 0;
-
-	// If we flip over an empty space, keep track of that.
-	for(int i = 0; i < 2; i++) {
-		if(empty(game, offset(game->cursor, i, 1))) {
-			game->buf_falls[xoffset(game->cursor, i)] = FRAMES_SHIFT;
-		}
-	}
-
 	return true;
 }
 
@@ -84,18 +53,5 @@ void cur_classic_draw(struct Game* game, struct DrawContext* ctx) {
 }
 
 uint8_t cur_classic_move(struct Game* game, struct Input* input) {
-	uint8_t curx = xcoord(game->cursor);
-	uint8_t cury = ycoord(game->cursor);
-
-   	if(input->up.just_pressed)    cury -= 1;
-	if(input->down.just_pressed)  cury += 1;
-	if(input->left.just_pressed)  curx -= 1;
-	if(input->right.just_pressed) curx += 1;
-
-	if(cury == 255)        cury = 0;
-	if(curx == 255)        curx = 0;
-	if(cury > BOARD_H - 2) cury = BOARD_H - 2;
-	if(curx > BOARD_W - 2) curx = BOARD_W - 2; // -2 because cursor is 2x1
-
-	return bindex(curx, cury);
+	return cur_move_bounded(game, input, BOARD_W - 2, BOARD_H - 2);
 }
