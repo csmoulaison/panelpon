@@ -10,16 +10,7 @@ uint8_t cur_vert_start_pos(struct Game* game) {
 }
 
 bool cur_vert_shift(struct Game* game) {
-	// TODO - Disallow "ferrying" tiles upwards.
-	uint8_t from = game->cursor;
-	uint8_t to = yoffset(game->cursor, 1);
-		
-	if(!eligible_for_shift(game, from, to)) {
-    	return false;
-	}
-
-	swap_tiles(game, from, to);
-	return true;
+	return shift_tiles(game, game->cursor, yoffset(game->cursor, 1));
 }
 
 void cur_vert_draw(struct Game* game, struct DrawContext* ctx) {

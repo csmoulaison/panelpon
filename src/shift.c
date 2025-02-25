@@ -2,6 +2,14 @@
 
 #include "board.h"
 
+bool shift_tiles(struct Game* game, uint8_t from, uint8_t to) {
+	if(eligible_for_shift(game, from, to)) {
+		swap_tiles(game, from, to);
+		return true;
+	} 
+	return false;
+}
+
 bool eligible_for_shift(struct Game* game, uint8_t from, uint8_t to) {
 	bool both_empty = true;
 

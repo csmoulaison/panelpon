@@ -115,10 +115,10 @@ void init(struct Context* ctx) {
 	ctx->game.draw_cursor = cur_classic_draw;
 	ctx->game.move_cursor = cur_classic_move;
 
-	ctx->game.cursor_start_pos = cur_vert_start_pos;
-	ctx->game.shift = cur_vert_shift;
-	ctx->game.draw_cursor = cur_vert_draw;
-	ctx->game.move_cursor = cur_vert_move;
+	//ctx->game.cursor_start_pos = cur_vert_start_pos;
+	//ctx->game.shift = cur_vert_shift;
+	//ctx->game.draw_cursor = cur_vert_draw;
+	//ctx->game.move_cursor = cur_vert_move;
 
 	game_init(&ctx->game);
 

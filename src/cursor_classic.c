@@ -10,15 +10,7 @@ uint8_t cur_classic_start_pos(struct Game* game) {
 }
 
 bool cur_classic_shift(struct Game* game) {
-	uint8_t from = game->cursor;
-	uint8_t to   = xoffset(game->cursor, 1);
-
-	if(!eligible_for_shift(game, from, to)) {
-    	return false;
-	}
-
-	swap_tiles(game, from, to);
-	return true;
+	return shift_tiles(game, game->cursor, xoffset(game->cursor, 1));
 }
 
 void cur_classic_draw(struct Game* game, struct DrawContext* ctx) {
