@@ -13,9 +13,11 @@ void game_init(struct Game* game) {
 	game->yoff_countdown = FRAMES_YOFF;
 	game->grace_period = false;
 
-	game->cursor = game->cursor_start_pos(game);
-	game->cursor_prev = game->cursor;
-	game->cursor_anim = FRAMES_CURSOR;
+	game->cursor_init(game);
+	for(int i = 0; i < MAX_CURSORS; i++) {
+		game->cursors[i].prev = game->cursors[i].pos;
+		game->cursors[i].anim = FRAMES_CURSOR;
+	}
 
 	// Generate some starting tiles and initialize events to 0.
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
@@ -40,11 +42,7 @@ void game_init(struct Game* game) {
 
 // Modifies the game state based on player input. Immediately precedes game_tick().
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio) {
-	uint8_t cursor_new = game->move_cursor(game, input);
-	if(cursor_new != game->cursor) {
-		game->cursor_prev = game->cursor;
-		game->cursor_anim = 0;
-		game->cursor = cursor_new;
+	if(game->move_cursor(game, input)) {
 		sound_play_new(audio, snd_move, 1, NULL);
 	}
 
@@ -100,8 +98,10 @@ iterate_yoff:
 
 // Move everything up one tile, including events
 generate_new_row:
-	if(game->cursor >= BOARD_W) {
-		game->cursor -= BOARD_W;
+	for(int i = 0; i < MAX_CURSORS; i++) {
+		if(game->cursors[i].pos >= BOARD_W) {
+			game->cursors[i].pos -= BOARD_W;
+		}
 	}
 	for(uint8_t y = 1; y < BOARD_H; y++) {
 		for(uint8_t x = 0; x < BOARD_W; x++) {
@@ -173,8 +173,10 @@ post_yoff_logic:
 	}
 
 	// Tick cursor
-	if(game->cursor_anim != FRAMES_CURSOR) {
-		game->cursor_anim++;
+	for(int i = 0; i < MAX_CURSORS; i++) {
+		if(game->cursors[i].anim != FRAMES_CURSOR) {
+			game->cursors[i].anim++;
+		}
 	}
 
 	if(should_match) {

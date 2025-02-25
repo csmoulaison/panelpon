@@ -6,6 +6,7 @@
 #include "config.h"
 #include "cursor_classic.h"
 #include "cursor_vert.h"
+#include "cursor_warp.h"
 
 SDL_Surface* load_surface(const char* path) {
 	SDL_Surface* surf = SDL_LoadBMP(path);
@@ -95,10 +96,10 @@ void init(struct Context* ctx) {
     	map_scancode_to_button(input, SDL_SCANCODE_S, 	   &input->down);
     	map_scancode_to_button(input, SDL_SCANCODE_A, 	   &input->left);
     	map_scancode_to_button(input, SDL_SCANCODE_D, 	   &input->right);
-    	map_scancode_to_button(input, SDL_SCANCODE_UP, 	   &input->up);
-    	map_scancode_to_button(input, SDL_SCANCODE_DOWN,   &input->down);
-    	map_scancode_to_button(input, SDL_SCANCODE_LEFT,   &input->left);
-    	map_scancode_to_button(input, SDL_SCANCODE_RIGHT,  &input->right);
+    	map_scancode_to_button(input, SDL_SCANCODE_UP, 	   &input->up2);
+    	map_scancode_to_button(input, SDL_SCANCODE_DOWN,   &input->down2);
+    	map_scancode_to_button(input, SDL_SCANCODE_LEFT,   &input->left2);
+    	map_scancode_to_button(input, SDL_SCANCODE_RIGHT,  &input->right2);
 
     	input->quit_event = false;
     	for(int i = 0; i < input->mapped_btns_len; i++) {
@@ -110,15 +111,20 @@ void init(struct Context* ctx) {
 
 	// Init game - when do function pointers get assigned?
 
-	ctx->game.cursor_start_pos = cur_classic_start_pos;
+	ctx->game.cursor_init = cur_classic_init;
 	ctx->game.shift = cur_classic_shift;
 	ctx->game.draw_cursor = cur_classic_draw;
 	ctx->game.move_cursor = cur_classic_move;
 
-	//ctx->game.cursor_start_pos = cur_vert_start_pos;
+	//ctx->game.cursor_init = cur_vert_init;
 	//ctx->game.shift = cur_vert_shift;
 	//ctx->game.draw_cursor = cur_vert_draw;
 	//ctx->game.move_cursor = cur_vert_move;
+
+	ctx->game.cursor_init = cur_warp_init;
+	ctx->game.shift = cur_warp_shift;
+	ctx->game.draw_cursor = cur_warp_draw;
+	ctx->game.move_cursor = cur_warp_move;
 
 	game_init(&ctx->game);
 

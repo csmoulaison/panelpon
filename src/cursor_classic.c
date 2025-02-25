@@ -4,18 +4,17 @@
 #include "shift.h"
 #include "cursor.h"
 
-uint8_t cur_classic_start_pos(struct Game* game) {
-    (void)game;
-	return BOARD_LEN / 2 - 1;
+void cur_classic_init(struct Game* game) {
+	game->cursor.pos = BOARD_LEN / 2 - 1;
 }
 
 bool cur_classic_shift(struct Game* game) {
-	return shift_tiles(game, game->cursor, xoffset(game->cursor, 1));
+	return shift_tiles(game, game->cursor.pos, xoffset(game->cursor.pos, 1));
 }
 
 void cur_classic_draw(struct Game* game, struct DrawContext* ctx) {
-	uint8_t curx = xcoord(game->cursor) * 8;
-	uint8_t cury = ycoord(game->cursor) * 8 + 8 - game->yoff;
+	uint8_t curx = xcoord(game->cursor.pos) * 8;
+	uint8_t cury = ycoord(game->cursor.pos) * 8 + 8 - game->yoff;
 
 	draw_sprite(ctx, SPR_CURSOR_HBIAS, curx - 1, cury - 1, PL_ALL_WHITE);
 	draw_sprite_flip(ctx, SPR_CURSOR_HBIAS, curx + 8 + 1, cury - 1, PL_ALL_WHITE, SDL_FLIP_HORIZONTAL);
@@ -44,6 +43,6 @@ void cur_classic_draw(struct Game* game, struct DrawContext* ctx) {
 	*/
 }
 
-uint8_t cur_classic_move(struct Game* game, struct Input* input) {
-	return cur_move_bounded(game, input, BOARD_W - 2, BOARD_H - 2);
+bool cur_classic_move(struct Game* game, struct Input* input) {
+	return cur_move_bounded(&game->cursor, input->up.just_pressed, input->down.just_pressed, input->left.just_pressed, input->right.just_pressed, BOARD_W - 2, BOARD_H - 2);
 }

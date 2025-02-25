@@ -26,11 +26,17 @@ struct Input {
 	int mapped_btns_len;
 
 	struct Button quit;
+	struct Button select;
+
 	struct Button up;
 	struct Button down;
 	struct Button left;
 	struct Button right;
-	struct Button select;
+
+	struct Button up2;
+	struct Button down2;
+	struct Button left2;
+	struct Button right2;
 
 	bool quit_event;
 };

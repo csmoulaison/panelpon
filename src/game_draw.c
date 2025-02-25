@@ -41,8 +41,12 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 			continue;
 		}
 
+		// Skip flipping tiles during tile draw below
+		skips[i] = true;
+
 		// Get sprite offset and orientation based on adjacency of the other tile.
 		bool vert = false;
+		bool warp = false;
 		bool altpos = false; // used to determine "anchor" point for drawing flip anim
 		SDL_RendererFlip flip;
 		if(to == xoffset(from, -1)) {
@@ -57,6 +61,8 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 		} else if(to == yoffset(from, 1)) {
 			vert = true;
 			flip = SDL_FLIP_VERTICAL;
+		} else {
+			warp = true;
 		}
 
 		// TODO - Time to rework animations and the way we get sprites to better
@@ -64,6 +70,19 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 		struct IRect spr;
 		struct Pallete pl;
 		spr_from_index(game->tiles, from, &spr, &pl);
+		float anim_t = FRAMES_SHIFT - t;
+
+		if(warp) {
+			spr.x = SPR_TILE_MOVE_WARP_OFFSET;
+			spr.y = 0;
+			draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, xcoord(from) * 8, 8 - game->yoff + ycoord(from) * 8, pl, flip);
+
+			spr_from_index(game->tiles, to, &spr, &pl);
+			spr.x = SPR_TILE_MOVE_WARP_OFFSET;
+			spr.y = 0;
+			draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, xcoord(to) * 8, 8 - game->yoff + ycoord(to) * 8, pl, flip);
+			continue;
+		}
 
 		// NOTE drawx,drawy as given here only applies to directly adjacent swaps, so
 		// we will eventually need further logic for warps, for instance.
@@ -73,8 +92,6 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 			drawx = xcoord(to);
 			drawy = ycoord(to);
 		}
-
-		float anim_t = FRAMES_SHIFT - t;
 
 		if(vert) {
 			spr.x = SPR_TILE_MOVE_VERT_OFFSET + game->tiles[from] * 8;
@@ -87,9 +104,6 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 			spr.w *= 2;
 			draw_anim_flip(ctx, anim_t, SPR_TILE_MOVE_FRAME_LEN, spr, drawx * 8, 8 - game->yoff + drawy * 8, pl, flip);
 		}
-
-		// Skip flipping tiles during tile draw below
-		skips[i] = true;
 	}
 
 	// Draw regular/falling tiles - skipping skips
