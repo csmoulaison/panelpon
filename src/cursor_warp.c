@@ -16,13 +16,7 @@ bool cur_warp_shift(struct Game* game) {
 void cur_warp_draw(struct Game* game, struct DrawContext* ctx) {
 	struct Pallete pls[2] = {PL_BLUE, PL_RED};
 	for(int i = 0; i < 2; i++) {
-		uint8_t curx = xcoord(game->cursors[i].pos) * 8;
-		uint8_t cury = ycoord(game->cursors[i].pos) * 8 + 8 - game->yoff;
-
-		draw_sprite(ctx, SPR_CURSOR_SQUARE, curx - 1, cury - 1, pls[i]);
-		draw_sprite_flip(ctx, SPR_CURSOR_SQUARE, curx + 1, cury - 1, pls[i], SDL_FLIP_HORIZONTAL);
-		draw_sprite_flip(ctx, SPR_CURSOR_SQUARE, curx - 1, cury + 1, pls[i], SDL_FLIP_VERTICAL);
-		draw_sprite_flip(ctx, SPR_CURSOR_SQUARE, curx + 1, cury + 1, pls[i], SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL);
+		draw_cursor_box(ctx, &game->cursors[i], SPR_CURSOR_SQUARE, pls[i], 1, 1, game->yoff);
 	}
 }
 

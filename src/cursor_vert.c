@@ -13,13 +13,8 @@ bool cur_vert_shift(struct Game* game) {
 }
 
 void cur_vert_draw(struct Game* game, struct DrawContext* ctx) {
-	uint8_t curx = xcoord(game->cursor.pos) * 8;
-	uint8_t cury = ycoord(game->cursor.pos) * 8 + 8 - game->yoff;
-
-	draw_sprite(ctx, SPR_CURSOR_VBIAS, curx - 1, cury - 1, PL_ALL_WHITE);
-	draw_sprite_flip(ctx, SPR_CURSOR_VBIAS, curx + 1, cury - 1, PL_ALL_WHITE, SDL_FLIP_HORIZONTAL);
-	draw_sprite_flip(ctx, SPR_CURSOR_VBIAS, curx - 1, cury + 8 + 1, PL_ALL_WHITE, SDL_FLIP_VERTICAL);
-	draw_sprite_flip(ctx, SPR_CURSOR_VBIAS, curx + 1, cury  + 8 + 1, PL_ALL_WHITE, SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL);
+	draw_cursor_box(ctx, &game->cursor, SPR_CURSOR_VBIAS, PL_ALL_WHITE, 1, 2, game->yoff);
+	return;
 }
 
 bool cur_vert_move(struct Game* game, struct Input* input) {

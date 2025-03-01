@@ -17,6 +17,8 @@
 // Screen config
 #define LOGICAL_W 216
 #define LOGICAL_H 216
+// Tile size
+#define TSIZE 8
 
 // Match config
 #define SHAPES_LEN 5
@@ -49,12 +51,14 @@
 // Cursor animation
 #define SPR_CURSOR_MOVE_FRAMES 2
 #define SPR_CURSOR_MOVE_FRAME_LEN FRAMES_CURSOR / SPR_CURSOR_MOVE_FRAMES
-// #define SPR_CURSOR_MOVE_R  (struct IRect){18, 48, 27, 10}
-// #define SPR_CURSOR_MOVE_D  (struct IRect){0, 58, 18, 19}
+#define SPR_CURSOR_HDRAG_OFF 8
+#define SPR_CURSOR_HPUSH_OFF 24
+#define SPR_CURSOR_VDRAG_OFF 40
+#define SPR_CURSOR_VPUSH_OFF 56
 // Debug sprites
-#define SPR_DEBUG_SHIFT  (struct IRect){240, 0, 8, 8}
-#define SPR_DEBUG_FALL  (struct IRect){248, 0, 8, 8}
-#define SPR_DEBUG_MATCH (struct IRect){256, 0, 8, 8}
-#define SPR_DEBUG_BUF   (struct IRect){264, 0, 8, 8}
+#define SPR_DEBUG_SHIFT (struct IRect){136,  40, 8, 8}
+#define SPR_DEBUG_FALL  (struct IRect){144,  40, 8, 8}
+#define SPR_DEBUG_MATCH (struct IRect){152,  40, 8, 8}
+#define SPR_DEBUG_BUF   (struct IRect){160,  40, 8, 8}
 
 #endif // config_h_INCLUDED

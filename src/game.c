@@ -19,6 +19,7 @@ void game_init(struct Game* game) {
 		game->cursors[i].anim = FRAMES_CURSOR;
 	}
 
+
 	// Generate some starting tiles and initialize events to 0.
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
 		game->tiles[i] = rand() % (SHAPES_LEN + 1);
@@ -113,7 +114,6 @@ generate_new_row:
 			game->falls[newpos]	    = game->falls[oldpos];
 			game->buf_falls[newpos] = game->buf_falls[oldpos];
 
-			// TODO - does this work?
 			game->shifts[newpos] = game->shifts[oldpos];
 			game->shifts[newpos].to_pos = yoffset(game->shifts[newpos].to_pos, -1);
 		}
