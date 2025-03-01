@@ -10,7 +10,7 @@ void cur_warp_init(struct Game* game) {
 }
 
 bool cur_warp_shift(struct Game* game) {
-	return shift_tiles(game, game->cursors[0].pos, game->cursors[1].pos);
+	return swap_tiles(game, game->cursors[0].pos, game->cursors[1].pos);
 }
 
 void cur_warp_draw(struct Game* game, struct DrawContext* ctx) {

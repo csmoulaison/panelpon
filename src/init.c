@@ -7,6 +7,7 @@
 #include "cursor_classic.h"
 #include "cursor_vert.h"
 #include "cursor_warp.h"
+#include "cursor_row.h"
 
 SDL_Surface* load_surface(const char* path) {
 	SDL_Surface* surf = SDL_LoadBMP(path);
@@ -125,6 +126,11 @@ void init(struct Context* ctx) {
 	ctx->game.shift = cur_warp_shift;
 	ctx->game.draw_cursor = cur_warp_draw;
 	ctx->game.move_cursor = cur_warp_move;
+
+	ctx->game.cursor_init = cur_row_init;
+	ctx->game.shift = cur_row_shift;
+	ctx->game.draw_cursor = cur_row_draw;
+	ctx->game.move_cursor = cur_row_move;
 
 	game_init(&ctx->game);
 

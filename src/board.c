@@ -16,7 +16,7 @@ bool matching(struct Game* game, uint8_t pos) {
 // checks both the to and "from"(indexed) positions associated with every shift.
 bool shifting(struct Game* game, uint8_t pos) {
     for(int i = 0; i < BOARD_LEN; i++) {
-        if(game->shifts[i].t != 0 && (pos == i || game->shifts[pos].to_pos != i)) {
+        if(game->shifts[i].t != 0 && (pos == i || game->shifts[i].to_pos == pos)) {
 			return true;
         }
     }

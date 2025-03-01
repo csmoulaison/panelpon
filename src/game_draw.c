@@ -138,7 +138,7 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 
 	// Draw debug gizmos
 	for(int i = 0; i < BOARD_LEN; i++) {
-		//if(swapping(game, i)) draw_sprite(ctx, SPR_DEBUG_SHIFT, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_YELLOW);		
+		//if(shifting(game, i)) draw_sprite(ctx, SPR_DEBUG_SHIFT, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_YELLOW);		
 		//if(matching(game, i)) draw_sprite(ctx, SPR_DEBUG_MATCH, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_BLUE);		
 		//if(falling(game, i)) draw_sprite(ctx, SPR_DEBUG_FALL, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_GREEN);
 		//if(fall_buffered(game, i)) draw_sprite(ctx, SPR_DEBUG_BUF, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_RED);

@@ -9,12 +9,11 @@ void cur_vert_init(struct Game* game) {
 }
 
 bool cur_vert_shift(struct Game* game) {
-	return shift_tiles(game, game->cursor.pos, yoffset(game->cursor.pos, 1));
+	return swap_tiles(game, game->cursor.pos, yoffset(game->cursor.pos, 1));
 }
 
 void cur_vert_draw(struct Game* game, struct DrawContext* ctx) {
 	draw_cursor_box(ctx, &game->cursor, SPR_CURSOR_VBIAS, PL_ALL_WHITE, 1, 2, game->yoff);
-	return;
 }
 
 bool cur_vert_move(struct Game* game, struct Input* input) {
