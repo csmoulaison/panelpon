@@ -59,7 +59,7 @@ bool eligible_for_shift2(struct Game* game, uint8_t from, uint8_t to) {
 	return true;
 }
 
-bool swap_tiles(struct Game* game, uint8_t from, uint8_t to) {
+bool swap_shift(struct Game* game, uint8_t from, uint8_t to) {
 	if(!eligible_for_shift(game, from, to)) {
 		return false;
 	}
@@ -94,34 +94,31 @@ bool swap_tiles(struct Game* game, uint8_t from, uint8_t to) {
 	return true;
 }
 
-bool shift_row(struct Game* game) {
-	// Assuming cursor.pos is at x=0
-	uint8_t cursor = game->cursor.pos;
-
+bool cycle_shift(struct Game* game, uint8_t* positions, uint8_t len) {
 	// Check for eligibility
-	if(!eligible_for_shift2(game, xoffset(cursor, BOARD_W - 1), cursor)) {
+	if(!eligible_for_shift2(game, positions[len - 1], positions[0])) {
 		return false;
 	}
-	for(int i = 0; i < BOARD_W - 1; i++) {
-		if(!eligible_for_shift2(game, xoffset(cursor, i), xoffset(cursor, i + 1))) {
+	for(int i = 0; i < len - 1; i++) {
+		if(!eligible_for_shift2(game, positions[i], positions[i + 1])) {
 			return false;			
 		}
 	}
 
 	// Shift tiles
-	uint8_t rightmost = xoffset(cursor, BOARD_W - 1);
-	// Confusingly, left is first set to the rightmost tile, so that it wraps.
-	uint8_t left = game->tiles[rightmost]; 
-	game->shifts[rightmost].to_pos = cursor;
-	game->shifts[rightmost].t = FRAMES_SHIFT;
-	for(int i = 0; i < BOARD_W; i++) {
-		uint8_t p = xoffset(cursor, i);
+	uint8_t last = positions[len - 1];
+	// Confusingly, prev is first set to the last tile, so that it wraps.
+	uint8_t prev = game->tiles[last]; 
+	game->shifts[last].to_pos = positions[0];
+	game->shifts[last].t = FRAMES_SHIFT;
+	for(int i = 0; i < len; i++) {
+		uint8_t p = positions[i];
 
-		uint8_t tmp = left;
-		left = game->tiles[p];
+		uint8_t tmp = prev;
+		prev = game->tiles[p];
 
 		game->tiles[p] = tmp;
-		game->shifts[p].to_pos = xoffset(cursor, i + 1);
+		game->shifts[p].to_pos = positions[i + 1];
 		game->shifts[p].t = FRAMES_SHIFT;
 
 		if(empty(game, yoffset(p, 1))) {

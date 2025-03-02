@@ -9,7 +9,7 @@ void cur_vert_init(struct Game* game) {
 }
 
 bool cur_vert_shift(struct Game* game) {
-	return swap_tiles(game, game->cursor.pos, yoffset(game->cursor.pos, 1));
+	return swap_shift(game, game->cursor.pos, yoffset(game->cursor.pos, 1));
 }
 
 void cur_vert_draw(struct Game* game, struct DrawContext* ctx) {

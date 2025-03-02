@@ -9,7 +9,11 @@ void cur_row_init(struct Game* game) {
 }
 
 bool cur_row_shift(struct Game* game) {
-	return shift_row(game);
+	uint8_t positions[BOARD_W];
+	for(int i = 0; i < BOARD_W; i++) {
+		positions[i] = xoffset(game->cursor.pos, i);
+	}
+	return cycle_shift(game, positions, BOARD_W);
 }
 
 void cur_row_draw(struct Game* game, struct DrawContext* ctx) {

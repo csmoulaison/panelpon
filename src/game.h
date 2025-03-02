@@ -2,8 +2,7 @@
 #define game_h_INCLUDED
 
 #define MAX_TILE_EVENTS BOARD_LEN
-#define MAX_CURSORS 2
-
+#define MAX_CURSORS 8
 #include "cursor.h"
 #include "config.h"
 #include "input.h"
@@ -30,6 +29,7 @@ struct Game {
 	uint8_t yoff;
 	uint8_t yoff_countdown;
 	bool grace_period;
+	uint8_t cursors_len;
 
 	// This union is mainly here for ergonomics, so we can refer to the "primary"
 	// cursor as just "cursor", rather than "cursor[0]".

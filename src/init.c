@@ -8,6 +8,9 @@
 #include "cursor_vert.h"
 #include "cursor_warp.h"
 #include "cursor_row.h"
+#include "cursor_col.h"
+#include "cursor_2x2.h"
+#include "cursor_snake.h"
 
 SDL_Surface* load_surface(const char* path) {
 	SDL_Surface* surf = SDL_LoadBMP(path);
@@ -117,20 +120,30 @@ void init(struct Context* ctx) {
 	ctx->game.draw_cursor = cur_classic_draw;
 	ctx->game.move_cursor = cur_classic_move;
 
-	ctx->game.cursor_init = cur_vert_init;
-	ctx->game.shift = cur_vert_shift;
-	ctx->game.draw_cursor = cur_vert_draw;
-	ctx->game.move_cursor = cur_vert_move;
+	//ctx->game.cursor_init = cur_vert_init;
+	//ctx->game.shift = cur_vert_shift;
+	//ctx->game.draw_cursor = cur_vert_draw;
+	//ctx->game.move_cursor = cur_vert_move;
 
-	ctx->game.cursor_init = cur_warp_init;
-	ctx->game.shift = cur_warp_shift;
-	ctx->game.draw_cursor = cur_warp_draw;
-	ctx->game.move_cursor = cur_warp_move;
+	//ctx->game.cursor_init = cur_warp_init;
+	//ctx->game.shift = cur_warp_shift;
+	//ctx->game.draw_cursor = cur_warp_draw;
+	//ctx->game.move_cursor = cur_warp_move;
 
 	ctx->game.cursor_init = cur_row_init;
 	ctx->game.shift = cur_row_shift;
 	ctx->game.draw_cursor = cur_row_draw;
 	ctx->game.move_cursor = cur_row_move;
+
+	ctx->game.cursor_init = cur_col_init;
+	ctx->game.shift = cur_col_shift;
+	ctx->game.draw_cursor = cur_col_draw;
+	ctx->game.move_cursor = cur_col_move;
+
+	ctx->game.cursor_init = cur_snake_init;
+	ctx->game.shift = cur_snake_shift;
+	ctx->game.draw_cursor = cur_snake_draw;
+	ctx->game.move_cursor = cur_snake_move;
 
 	game_init(&ctx->game);
 
