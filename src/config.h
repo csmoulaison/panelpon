@@ -6,14 +6,13 @@
 #define DT MS_PER_FRAME / 1000.0
 
 // Lengths config
-#define FRAMES_YOFF 48
+#define FRAMES_YOFF 12
 #define FRAMES_SHIFT 24
 #define FRAMES_FALL 4
 #define FRAMES_MATCH 125
 #define FRAMES_HITCH 200
 #define FRAMES_CURSOR 12
 #define FRAMES_GRACE FRAMES_HITCH
-#define FRAMES_SNAKE 32
 
 // Screen config
 #define LOGICAL_W 216
@@ -23,7 +22,7 @@
 
 // Match config
 #define SHAPES_LEN 5
-#define BOARD_W 8
+#define BOARD_W 6
 #define BOARD_H 13
 #define BOARD_LEN BOARD_W * BOARD_H
 

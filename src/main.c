@@ -4,8 +4,6 @@
 #include "destroy.h"
 
 // Cursors to add:
-// * Tetris
-// * Ring
 // * Layered, swap - 3d? - time travel?
 
 int main() {
