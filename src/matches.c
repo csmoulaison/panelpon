@@ -80,6 +80,10 @@ void check_matches(struct Game* game, struct AudioContext* audio) {
 	if(new_len > 0) {
 		game->yoff_countdown = FRAMES_HITCH;
 
+		game->score += new_len;
+		game->score_blink = FRAMES_SCORE_BLINK;
+		game->score_countup = FRAMES_SCORE_COUNTUP;
+
 		struct Sound sound;
     	sound.priority = 1;
     	sound.callback = snd_match;

@@ -81,3 +81,26 @@ void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete p
 
     SDL_RenderCopyEx(ctx->renderer, ctx->atlas_primary, &s, &d, 0, NULL, false);
 }
+
+void draw_text(struct DrawContext* ctx, const char* str, uint8_t x, uint8_t y, struct Pallete pl) {
+	struct IRect src;
+	src.x = 0;
+	src.y = 48;
+	src.w = 8;
+	src.h = 8;
+
+	uint8_t i = 0;
+	while(str[i] != '\0') {
+		uint8_t ascii_off = 97;
+		uint8_t src_off = 0;
+		if(str[i] < 97) {
+			ascii_off = 48;
+			src_off = 208;
+		}
+		src.x = src_off + 8 * ((uint8_t)str[i] - ascii_off);
+		
+		draw_sprite(ctx, src, x, y, pl);
+		x += 9;
+		i++;
+	}
+}

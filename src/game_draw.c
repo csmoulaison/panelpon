@@ -1,7 +1,7 @@
 #include "game_draw.h"
 
 void game_draw(struct Game* game, struct DrawContext* ctx) {
-	ctx->xoff = LOGICAL_W / 2 - BOARD_W / 2 * 8;
+	ctx->xoff = LOGICAL_W / 2 - BOARD_W / 2 * 8 - 16;
 	ctx->yoff = LOGICAL_H / 2 - BOARD_H / 2 * 8;
 
 	switch(game->state) {
@@ -21,6 +21,30 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 	// Draw border
 	draw_fill_rect(ctx, (struct IRect){0, BOARD_H * 8 - 1, BOARD_W * 8, 10}, PL_ALL_BLACK);
 	draw_rect(ctx, (struct IRect){-3, -3, BOARD_W * 8 + 4, BOARD_H * 8 + 3}, PL_ALL_WHITE);
+
+	// Draw score text
+	uint8_t lmarg = BOARD_W * 8 + 6;
+	draw_text(ctx, "score", lmarg, 0, PL_ALL_WHITE);
+	char num_str[8];
+	sprintf(num_str, "%i", game->score_visible);
+	struct Pallete str_pl = PL_YELLOW;
+	if((game->score_blink / 4) % 2 != 0) {
+		str_pl = PL_ALL_WHITE;
+	}
+	draw_text(ctx, num_str, lmarg, 10, str_pl);
+
+	// Draw speed text
+	draw_text(ctx, "speed", lmarg, 30, PL_ALL_WHITE);
+	sprintf(num_str, "%i", game->speed);
+	str_pl = PL_CYAN;
+	if((game->speed_blink / 4) % 2 != 0) {
+		str_pl = PL_ALL_WHITE;
+	}
+	draw_text(ctx, num_str, lmarg, 40, str_pl);
+
+	// Draw portrait
+	draw_rect(ctx, (struct IRect){lmarg, BOARD_H * 8 - 32 + 2, 30, 30}, PL_ALL_WHITE);
+	draw_sprite(ctx, (struct IRect){290, 2, 28, 28}, lmarg + 2, BOARD_H * 8 - 32 + 4, PL_PURPLE);
 }
 
 void game_draw_active(struct Game* game, struct DrawContext* ctx) {
@@ -143,6 +167,7 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 		//if(falling(game, i)) draw_sprite(ctx, SPR_DEBUG_FALL, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_GREEN);
 		//if(fall_buffered(game, i)) draw_sprite(ctx, SPR_DEBUG_BUF, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8, PL_RED);
 	}
+
 }
 
 void game_draw_pre(struct Game* game, struct DrawContext* ctx) {

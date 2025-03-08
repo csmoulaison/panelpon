@@ -31,6 +31,15 @@ struct Game {
 	bool grace_period;
 	uint8_t cursors_len;
 
+	uint16_t score;
+	uint16_t score_visible;
+	uint8_t score_countup;
+	uint8_t score_blink;
+
+	uint8_t speed;
+	uint8_t speed_blink;
+	uint32_t speed_countdown;
+
 	// This union is mainly here for ergonomics, so we can refer to the "primary"
 	// cursor as just "cursor", rather than "cursor[0]".
 	union {

@@ -32,5 +32,6 @@ void draw_anim_flip(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, st
 void draw_anim_flip_vert(struct DrawContext* ctx, uint8_t frame, uint8_t framelen, struct IRect src, int16_t x, int16_t y, struct Pallete pl, SDL_RendererFlip flip);
 void draw_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl);
 void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl);
+void draw_text(struct DrawContext* ctx, const char* str, uint8_t x, uint8_t y, struct Pallete pl);
 
 #endif // draw_h_INCLUDED

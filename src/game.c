@@ -9,16 +9,24 @@
 
 // Initializes a game round. Called every time a new round is started.
 void game_init(struct Game* game) {
+	game->speed = 225;
+	game->speed_blink = 0;
+	game->speed_countdown = FRAMES_SPEED_COUNTDOWN;
+
 	game->yoff = 0;
-	game->yoff_countdown = FRAMES_YOFF;
+	game->yoff_countdown = -game->speed;
 	game->grace_period = false;
+
+	game->score = 0;
+	game->score_visible = game->score;
+	game->score_countup = 0;
+	game->score_blink = 0;
 
 	game->cursor_init(game);
 	for(int i = 0; i < MAX_CURSORS; i++) {
 		game->cursors[i].prev = game->cursors[i].pos;
 		game->cursors[i].anim = FRAMES_CURSOR;
 	}
-
 
 	// Generate some starting tiles and initialize events to 0.
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
@@ -83,7 +91,7 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
 	goto generate_new_row;
 
 iterate_yoff:
-	game->yoff_countdown = FRAMES_YOFF;
+	game->yoff_countdown = -game->speed;
 
 	game->yoff += 1;
 	if(game->yoff != 8) {
@@ -131,7 +139,35 @@ generate_new_row:
 // Thus marks the end of the gotos. They are, after all, considered harmful.
 post_yoff_logic:
 
-	// Update event ticks
+	// Increase visible score to the actual score
+	if(game->score_visible < game->score && game->score_countup != 0) {
+		game->score_countup--;
+		if(game->score_countup == 0) {
+			game->score_visible++;
+			if(game->score_visible < game->score) {
+				game->score_countup = FRAMES_SCORE_COUNTUP;
+			}
+		}
+	}
+
+	// Update blinking text
+	if(game->score_blink != 0) {
+		game->score_blink--;
+	}
+
+	if(game->speed_blink != 0) {
+		game->speed_blink--;
+	}
+
+	// Countdown to speed increase
+	game->speed_countdown--;
+	if(game->speed_countdown == 0) {
+		game->speed++;
+		game->speed_countdown = FRAMES_SPEED_COUNTDOWN;
+		game->speed_blink = FRAMES_SPEED_BLINK;
+	}
+
+	// Update event ticks (buf falls, matches, falls, and shifts)
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {
 		if(game->buf_falls[i] != 0) {
 			game->buf_falls[i]--;
