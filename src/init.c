@@ -36,6 +36,13 @@ void init(struct Context* ctx) {
 
 	// Init rand
 	srand(time(NULL));
+
+	ctx->prog_state = PROG_MAIN_MENU;
+	// Init main menu
+	ctx->menu.type = MENU_MAIN;
+	ctx->menu.just_selected = false;
+	ctx->menu.selection = 0;
+	ctx->menu.len = 2;
     
 	// Init draw context
 	{

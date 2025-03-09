@@ -23,6 +23,8 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 	draw_rect(ctx, (struct IRect){-3, -3, BOARD_W * 8 + 4, BOARD_H * 8 + 3}, PL_ALL_WHITE);
 
 	// Draw score text
+	draw_set_font(ctx, FONT_BIG);
+	
 	uint8_t lmarg = BOARD_W * 8 + 6;
 	draw_text(ctx, "score", lmarg, 0, PL_ALL_WHITE);
 	char num_str[8];
@@ -35,7 +37,7 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 
 	// Draw speed text
 	draw_text(ctx, "speed", lmarg, 30, PL_ALL_WHITE);
-	sprintf(num_str, "%i", game->speed);
+	sprintf(num_str, "%i", game->speed + 1);
 	str_pl = PL_CYAN;
 	if((game->speed_blink / 4) % 2 != 0) {
 		str_pl = PL_ALL_WHITE;
@@ -45,6 +47,8 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 	// Draw portrait
 	draw_rect(ctx, (struct IRect){lmarg, BOARD_H * 8 - 32 + 2, 30, 30}, PL_ALL_WHITE);
 	draw_sprite(ctx, (struct IRect){290, 2, 28, 28}, lmarg + 2, BOARD_H * 8 - 32 + 4, PL_PURPLE);
+	draw_set_font(ctx, FONT_SMALL);
+	draw_text(ctx, "isabel", lmarg, BOARD_H * 8 - 36, PL_PURPLE);
 }
 
 void game_draw_active(struct Game* game, struct DrawContext* ctx) {

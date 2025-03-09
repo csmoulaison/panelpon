@@ -82,12 +82,22 @@ void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete p
     SDL_RenderCopyEx(ctx->renderer, ctx->atlas_primary, &s, &d, 0, NULL, false);
 }
 
+void draw_set_font(struct DrawContext* ctx, enum Font font) {
+	switch(font) {
+		case FONT_BIG:
+			ctx->font_src = (struct IRect){0, 48, 8, 8};
+			break;
+		case FONT_SMALL:
+			ctx->font_src = (struct IRect){168, 44, 4, 4};
+			break;
+		default:
+			break;
+	}
+}
+
 void draw_text(struct DrawContext* ctx, const char* str, uint8_t x, uint8_t y, struct Pallete pl) {
-	struct IRect src;
-	src.x = 0;
-	src.y = 48;
-	src.w = 8;
-	src.h = 8;
+	struct IRect src = ctx->font_src;
+	uint8_t rootx = src.x;
 
 	uint8_t i = 0;
 	while(str[i] != '\0') {
@@ -97,10 +107,10 @@ void draw_text(struct DrawContext* ctx, const char* str, uint8_t x, uint8_t y, s
 			ascii_off = 48;
 			src_off = 208;
 		}
-		src.x = src_off + 8 * ((uint8_t)str[i] - ascii_off);
+		src.x = rootx + src_off + src.w * ((uint8_t)str[i] - ascii_off);
 		
 		draw_sprite(ctx, src, x, y, pl);
-		x += 9;
+		x += src.w + 1;
 		i++;
 	}
 }

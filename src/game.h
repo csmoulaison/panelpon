@@ -8,6 +8,7 @@
 #include "input.h"
 #include "audio.h"
 #include "draw.h"
+#include "prog_state.h"
 
 enum GameState {
     GAME_PRE,
@@ -68,6 +69,7 @@ struct Game {
 };
 
 void game_init(struct Game* game);
+enum ProgState game_loop(struct Game* game, struct Input* input, struct AudioContext* audio);
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
 void game_tick(struct Game* game, struct AudioContext* audio); 
 

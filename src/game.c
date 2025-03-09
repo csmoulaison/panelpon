@@ -7,14 +7,18 @@
 #include "board.h"
 #include "matches.h"
 
+// Speed lookup table
+#define SPEEDS_LEN 20
+static uint8_t speeds[SPEEDS_LEN] = { 255, 191, 143, 107, 80, 60, 45, 34, 26, 20, 15, 11, 8, 7, 6, 5, 4, 3, 2, 1 };
+
 // Initializes a game round. Called every time a new round is started.
 void game_init(struct Game* game) {
-	game->speed = 225;
+	game->speed = 4;
 	game->speed_blink = 0;
 	game->speed_countdown = FRAMES_SPEED_COUNTDOWN;
 
 	game->yoff = 0;
-	game->yoff_countdown = -game->speed;
+	game->yoff_countdown = speeds[game->speed];
 	game->grace_period = false;
 
 	game->score = 0;
@@ -47,6 +51,42 @@ void game_init(struct Game* game) {
 	}
 
 	game->state = GAME_PRE;
+}
+
+enum ProgState game_loop(struct Game* game, struct Input* input, struct AudioContext* audio) {
+	if(input->quit.just_pressed) {
+		return PROG_MAIN_MENU;
+	}
+
+	switch(game->state) {
+    	case GAME_PRE:
+        	if(input->select.just_pressed) {
+            	game->state = GAME_ACTIVE;
+            	struct Sound sound;
+            	sound.priority = 1;
+            	sound.callback = snd_move;
+            	sound_play(audio, sound);
+        	}
+        	break;
+        case GAME_ACTIVE:
+        	game_control(game, input, audio);
+        	game_tick(game, audio);
+            break;
+		case GAME_POST:
+    		game->yoff_countdown -= 1;
+        	if(input->select.just_pressed) {
+            	game_init(game);
+            	struct Sound sound;
+            	sound.priority = 1;
+            	sound.callback = snd_move;
+            	sound_play(audio, sound);
+        	}
+    		break;
+    	default:
+        	break;
+	}
+
+	return PROG_GAME;
 }
 
 // Modifies the game state based on player input. Immediately precedes game_tick().
@@ -91,7 +131,7 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
 	goto generate_new_row;
 
 iterate_yoff:
-	game->yoff_countdown = -game->speed;
+	game->yoff_countdown = speeds[game->speed];
 
 	game->yoff += 1;
 	if(game->yoff != 8) {
@@ -161,7 +201,7 @@ post_yoff_logic:
 
 	// Countdown to speed increase
 	game->speed_countdown--;
-	if(game->speed_countdown == 0) {
+	if(game->speed_countdown == 0 && game->speed < 19) {
 		game->speed++;
 		game->speed_countdown = FRAMES_SPEED_COUNTDOWN;
 		game->speed_blink = FRAMES_SPEED_BLINK;

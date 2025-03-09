@@ -16,7 +16,7 @@
 #define FRAMES_SCORE_BLINK 64
 #define FRAMES_SPEED_BLINK 128
 #define FRAMES_SCORE_COUNTUP 8
-#define FRAMES_SPEED_COUNTDOWN 2000
+#define FRAMES_SPEED_COUNTDOWN 4000
 
 // Screen config
 #define LOGICAL_W 216
@@ -64,5 +64,6 @@
 #define SPR_DEBUG_FALL  (struct IRect){144,  40, 8, 8}
 #define SPR_DEBUG_MATCH (struct IRect){152,  40, 8, 8}
 #define SPR_DEBUG_BUF   (struct IRect){160,  40, 8, 8}
+
 
 #endif // config_h_INCLUDED

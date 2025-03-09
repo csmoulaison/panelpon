@@ -22,40 +22,32 @@ void loop(struct Context* ctx) {
     	input_poll(&ctx->input);
 
     	// Simulate
-    	switch(ctx->game.state) {
-        	case GAME_PRE:
-            	if(ctx->input.select.just_pressed) {
-                	ctx->game.state = GAME_ACTIVE;
-                	struct Sound sound;
-                	sound.priority = 1;
-                	sound.callback = snd_move;
-                	sound_play(&ctx->audio, sound);
-            	}
-            	break;
-            case GAME_ACTIVE:
-            	game_control(&ctx->game, &ctx->input, &ctx->audio);
-            	game_tick(&ctx->game, &ctx->audio);
-                break;
-    		case GAME_POST:
-        		ctx->game.yoff_countdown -= 1;
-            	if(ctx->input.select.just_pressed) {
-                	game_init(&ctx->game);
-                	struct Sound sound;
-                	sound.priority = 1;
-                	sound.callback = snd_move;
-                	sound_play(&ctx->audio, sound);
-            	}
-        		break;
-        	default:
-            	break;
+    	switch(ctx->prog_state) {
+	    	case PROG_MAIN_MENU:
+		    	ctx->prog_state = menu_control(&ctx->menu, &ctx->input, &ctx->audio, &ctx->game);
+		    	break;
+	    	case PROG_GAME:
+				ctx->prog_state = game_loop(&ctx->game, &ctx->input, &ctx->audio);
+				break;
+			default:
+				break;
     	}
-
+		
     	// Audio
     	audio_update(&ctx->audio);
     }
 
 	// Draw
 	draw_clear(&ctx->draw);
-	game_draw(&ctx->game, &ctx->draw);
+	switch(ctx->prog_state) {
+		case PROG_MAIN_MENU:
+			menu_draw(&ctx->menu, &ctx->draw);
+			break;
+		case PROG_GAME:
+			game_draw(&ctx->game, &ctx->draw);
+			break;
+		default:
+			break;
+	}
 	draw_present(&ctx->draw);
 }

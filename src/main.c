@@ -3,14 +3,19 @@
 #include "loop.h"
 #include "destroy.h"
 
-// Cursors to add:
+// TODO Cursors to add:
 // * Layered, swap - 3d? - time travel?
+// TODO - Menu with cursor + settings configuration.
+// TODO - Bonus points.
+// * Multiplier for chains.
+// * Extra points for combos.
+// TODO 
 
 int main() {
 	struct Context ctx;
 	init(&ctx);
 
-	while(!ctx.input.quit.held && !ctx.input.quit_event) {
+	while(!ctx.input.quit_event && ctx.prog_state != PROG_EXIT) {
     	loop(&ctx);
 	}
 
