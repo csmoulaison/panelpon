@@ -4,6 +4,7 @@
 #include "time.h"
 
 #include "config.h"
+#include "menu_options.h"
 #include "cursor_classic.h"
 #include "cursor_vert.h"
 #include "cursor_warp.h"
@@ -38,11 +39,13 @@ void init(struct Context* ctx) {
 	srand(time(NULL));
 
 	ctx->prog_state = PROG_MAIN_MENU;
+
 	// Init main menu
-	ctx->menu.type = MENU_MAIN;
 	ctx->menu.just_selected = false;
 	ctx->menu.selection = 0;
-	ctx->menu.len = 2;
+	ctx->menu.options = main_menu_options;
+	ctx->menu.len = MAIN_MENU_LEN;
+	ctx->menu.callback = main_menu_callback;
     
 	// Init draw context
 	{

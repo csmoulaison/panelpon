@@ -69,7 +69,10 @@ struct Game {
 };
 
 void game_init(struct Game* game);
-enum ProgState game_loop(struct Game* game, struct Input* input, struct AudioContext* audio);
+
+struct Context;
+void game_loop(struct Context* ctx);
+
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 
 void game_tick(struct Game* game, struct AudioContext* audio); 
 

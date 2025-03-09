@@ -1,9 +1,9 @@
-#include "main_menu.h"
+#include "setup_menu.h"
 
 #include "context.h"
 #include "sounds.h"
 
-void main_menu_callback(struct Menu* menu, struct Context* ctx) {
+void setup_menu_callback(struct Menu* menu, struct Context* ctx) {
 	switch(menu->selection) {
     	case 0:
             ctx->prog_state = PROG_GAME;
@@ -17,3 +17,4 @@ void main_menu_callback(struct Menu* menu, struct Context* ctx) {
             break;
 	}
 }
+

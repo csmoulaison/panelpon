@@ -24,10 +24,10 @@ void loop(struct Context* ctx) {
     	// Simulate
     	switch(ctx->prog_state) {
 	    	case PROG_MAIN_MENU:
-		    	ctx->prog_state = menu_control(&ctx->menu, &ctx->input, &ctx->audio, &ctx->game);
+		    	menu_control(&ctx->menu, ctx);
 		    	break;
 	    	case PROG_GAME:
-				ctx->prog_state = game_loop(&ctx->game, &ctx->input, &ctx->audio);
+				game_loop(ctx);
 				break;
 			default:
 				break;

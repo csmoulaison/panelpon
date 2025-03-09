@@ -9,7 +9,6 @@
 // TODO - Bonus points.
 // * Multiplier for chains.
 // * Extra points for combos.
-// TODO 
 
 int main() {
 	struct Context ctx;

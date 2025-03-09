@@ -6,6 +6,7 @@
 #include "sounds.h"
 #include "board.h"
 #include "matches.h"
+#include "context.h"
 
 // Speed lookup table
 #define SPEEDS_LEN 20
@@ -53,9 +54,14 @@ void game_init(struct Game* game) {
 	game->state = GAME_PRE;
 }
 
-enum ProgState game_loop(struct Game* game, struct Input* input, struct AudioContext* audio) {
+void game_loop(struct Context* ctx) {
+	struct Game* game = &ctx->game;
+	struct Input* input = &ctx->input;
+	struct AudioContext* audio = &ctx->audio;
+    
 	if(input->quit.just_pressed) {
-		return PROG_MAIN_MENU;
+		ctx->prog_state = PROG_MAIN_MENU;
+		return;
 	}
 
 	switch(game->state) {
@@ -85,8 +91,6 @@ enum ProgState game_loop(struct Game* game, struct Input* input, struct AudioCon
     	default:
         	break;
 	}
-
-	return PROG_GAME;
 }
 
 // Modifies the game state based on player input. Immediately precedes game_tick().
