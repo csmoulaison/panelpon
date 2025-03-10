@@ -4,6 +4,7 @@
 enum ProgState {
 	PROG_EXIT,
 	PROG_MAIN_MENU,
+	PROG_FSELECT,
 	PROG_SETUP,
 	PROG_GAME
 };

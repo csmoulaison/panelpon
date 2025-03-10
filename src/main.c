@@ -5,7 +5,6 @@
 
 // TODO Cursors to add:
 // * Layered, swap - 3d? - time travel?
-// TODO - Menu with cursor + settings configuration.
 // TODO - Bonus points.
 // * Multiplier for chains.
 // * Extra points for combos.

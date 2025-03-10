@@ -30,7 +30,7 @@ void setup_menu_loop(struct Menu* menu, struct Context* ctx) {
         sound_play_new(&ctx->audio, snd_back, 1, NULL);
 	}
 	
-	menu_control(menu, ctx);
+	menu_control(menu, ctx, ctx->input.up.just_pressed, ctx->input.down.just_pressed);
 
 	// Get value to modify via the logic below ...
 	uint8_t* value;
@@ -101,8 +101,11 @@ void setup_menu_draw(struct Menu* menu, struct Game* game, struct DrawContext* c
 	ctx->xoff = LOGICAL_W / 2 - 64;
 	ctx->yoff = LOGICAL_H / 2 - 40;
 	draw_rect(ctx, (struct IRect){0, 1, 128, 78}, PL_ALL_WHITE);
-	ctx->yoff += 12;
 
+	draw_set_font(ctx, FONT_SMALL);
+	draw_text(ctx, "game setup", 64 - 25, -7, PL_ALL_WHITE);
+
+	ctx->yoff += 12;
 	char cursor_str[8];
 	switch(game->cursor_type) {
 		case CUR_CLASSIC:
