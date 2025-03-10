@@ -6,7 +6,6 @@
 #define DT MS_PER_FRAME / 1000.0
 
 // Lengths config
-#define FRAMES_YOFF 255
 #define FRAMES_SHIFT 24
 #define FRAMES_FALL 4
 #define FRAMES_MATCH 125
@@ -16,7 +15,6 @@
 #define FRAMES_SCORE_BLINK 64
 #define FRAMES_SPEED_BLINK 128
 #define FRAMES_SCORE_COUNTUP 8
-#define FRAMES_SPEED_COUNTDOWN 4000
 
 // Screen config
 #define LOGICAL_W 216

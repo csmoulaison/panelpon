@@ -57,3 +57,49 @@ void snd_lose(struct Sound* sound) {
 
 	if(sound->t > len) sound->active = false;
 }
+
+void snd_advance(struct Sound* sound) {
+    float len = 0.15;
+    float tmod = sound->t / len;
+
+    sound->freq = 400;
+    if(tmod > 0.5) {
+	    sound->freq *= 2;
+    }
+	sound->amp = 0.25;
+
+	if(sound->t > len) sound->active = false;
+}
+
+void snd_back(struct Sound* sound) {
+    float len = 0.15;
+    float tmod = sound->t / len;
+
+    sound->freq = 600;
+    if(tmod > 0.5) {
+	    sound->freq /= 2;
+    }
+	sound->amp = 0.25;
+
+	if(sound->t > len) sound->active = false;
+}
+
+void snd_up(struct Sound* sound) {
+    float len = 0.08;
+    float tmod = sound->t / len;
+
+    sound->freq = 600 + 600 * tmod;
+	sound->amp = 0.2;
+
+	if(sound->t > len) sound->active = false;
+}
+
+void snd_down(struct Sound* sound) {
+    float len = 0.08;
+    float tmod = sound->t / len;
+
+    sound->freq = 800- 600 * tmod;
+	sound->amp = 0.2;
+
+	if(sound->t > len) sound->active = false;
+}

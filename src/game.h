@@ -1,14 +1,16 @@
 #ifndef game_h_INCLUDED
 #define game_h_INCLUDED
 
-#define MAX_TILE_EVENTS BOARD_LEN
-#define MAX_CURSORS 8
 #include "cursor.h"
 #include "config.h"
 #include "input.h"
 #include "audio.h"
 #include "draw.h"
 #include "prog_state.h"
+#include "cursor_type.h"
+
+#define MAX_TILE_EVENTS BOARD_LEN
+#define MAX_CURSORS 8
 
 enum GameState {
     GAME_PRE,
@@ -27,16 +29,19 @@ struct Shift {
 struct Game {
     // Misc game state
     enum GameState state;
+    enum CursorType cursor_type;
 	uint8_t yoff;
 	uint8_t yoff_countdown;
 	bool grace_period;
 	uint8_t cursors_len;
+	uint8_t speed_increase_interval;
 
 	uint16_t score;
 	uint16_t score_visible;
 	uint8_t score_countup;
 	uint8_t score_blink;
 
+	uint8_t start_speed;
 	uint8_t speed;
 	uint8_t speed_blink;
 	uint32_t speed_countdown;

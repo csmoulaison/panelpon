@@ -4,16 +4,6 @@
 #include "time.h"
 
 #include "config.h"
-#include "menu_options.h"
-#include "cursor_classic.h"
-#include "cursor_vert.h"
-#include "cursor_warp.h"
-#include "cursor_row.h"
-#include "cursor_col.h"
-#include "cursor_2x2.h"
-#include "cursor_snake.h"
-#include "cursor_ring.h"
-#include "cursor_hsplit.h"
 
 SDL_Surface* load_surface(const char* path) {
 	SDL_Surface* surf = SDL_LoadBMP(path);
@@ -38,14 +28,9 @@ void init(struct Context* ctx) {
 	// Init rand
 	srand(time(NULL));
 
-	ctx->prog_state = PROG_MAIN_MENU;
-
 	// Init main menu
-	ctx->menu.just_selected = false;
-	ctx->menu.selection = 0;
-	ctx->menu.options = main_menu_options;
-	ctx->menu.len = MAIN_MENU_LEN;
-	ctx->menu.callback = main_menu_callback;
+	ctx->prog_state = PROG_MAIN_MENU;
+	main_menu_init(&ctx->menu);
     
 	// Init draw context
 	{
@@ -124,76 +109,6 @@ void init(struct Context* ctx) {
 			input->mapped_btns[i]->held = false;
     	}
 	}
-
-	// Init game - when do function pointers get assigned?
-
-	enum CursorType {
-		classic,
-		vert,
-		warp,
-		row,
-		col,
-		snake,
-		twobytwo,
-		hsplit
-	};
-
-	enum CursorType cur_type = classic;
-
-	switch(cur_type) {
-		case classic:
-			ctx->game.cursor_init = cur_classic_init;
-			ctx->game.shift = cur_classic_shift;
-			ctx->game.draw_cursor = cur_classic_draw;
-			ctx->game.move_cursor = cur_classic_move;
-			break;
-		case vert:
-			ctx->game.cursor_init = cur_vert_init;
-			ctx->game.shift = cur_vert_shift;
-			ctx->game.draw_cursor = cur_vert_draw;
-			ctx->game.move_cursor = cur_vert_move;
-			break;
-		case warp:
-			ctx->game.cursor_init = cur_warp_init;
-			ctx->game.shift = cur_warp_shift;
-			ctx->game.draw_cursor = cur_warp_draw;
-			ctx->game.move_cursor = cur_warp_move;
-			break;
-		case row:
-			ctx->game.cursor_init = cur_row_init;
-			ctx->game.shift = cur_row_shift;
-			ctx->game.draw_cursor = cur_row_draw;
-			ctx->game.move_cursor = cur_row_move;
-			break;
-		case col:
-			ctx->game.cursor_init = cur_col_init;
-			ctx->game.shift = cur_col_shift;
-			ctx->game.draw_cursor = cur_col_draw;
-			ctx->game.move_cursor = cur_col_move;
-			break;
-		case snake:
-			ctx->game.cursor_init = cur_snake_init;
-			ctx->game.shift = cur_snake_shift;
-			ctx->game.draw_cursor = cur_snake_draw;
-			ctx->game.move_cursor = cur_snake_move;
-			break;
-		case twobytwo:
-			ctx->game.cursor_init = cur_2x2_init;
-			ctx->game.shift = cur_2x2_shift;
-			ctx->game.draw_cursor = cur_2x2_draw;
-			ctx->game.move_cursor = cur_2x2_move;
-			break;
-		case hsplit:
-			ctx->game.cursor_init = cur_hsplit_init;
-			ctx->game.shift = cur_hsplit_shift;
-			ctx->game.draw_cursor = cur_hsplit_draw;
-			ctx->game.move_cursor = cur_hsplit_move;
-			break;
-		default:
-			break;
-	}
-
-	game_init(&ctx->game);
 
 	// Init time
 	ctx->time_now = SDL_GetPerformanceCounter();

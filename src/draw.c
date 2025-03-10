@@ -108,6 +108,10 @@ void draw_text(struct DrawContext* ctx, const char* str, uint8_t x, uint8_t y, s
 			src_off = 208;
 		}
 		src.x = rootx + src_off + src.w * ((uint8_t)str[i] - ascii_off);
+
+		if(str[i] == 32) {
+			src.x = -src.w;
+		}
 		
 		draw_sprite(ctx, src, x, y, pl);
 		x += src.w + 1;

@@ -3,6 +3,8 @@
 
 #include "menu.h"
 
-void main_menu_callback(struct Menu* menu, struct Context* ctx);
+void main_menu_init(struct Menu* menu);
+void main_menu_loop(struct Menu* menu, struct Context* ctx);
+void main_menu_draw(struct Menu* menu, struct DrawContext* ctx);
 
 #endif // main_menu_h_INCLUDED

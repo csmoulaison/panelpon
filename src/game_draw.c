@@ -176,10 +176,39 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 
 void game_draw_pre(struct Game* game, struct DrawContext* ctx) {
 	(void)game;
-	(void)ctx;
+
+	// Fancy blinking text
+	uint8_t rem = (game->yoff_countdown / 8) % 8;
+	if(rem < 3) {
+		return;
+	}
+	struct Pallete pl = PL_PURPLE;
+	if(rem == 3 || rem == 7) {
+		pl = PL_RED;
+	}
+
+	draw_set_font(ctx, FONT_BIG);
+	uint8_t lmarg = (BOARD_W * 8) / 2 - 22;
+	draw_text(ctx, "press", lmarg, 16, pl);
+	draw_text(ctx, "enter", lmarg, 28, pl);
 }
 
 void game_draw_post(struct Game* game, struct DrawContext* ctx) {
+	if(game->yoff_countdown == 0) {
+		uint8_t lmarg = (BOARD_W * 8) / 2 - 18;
+
+		draw_set_font(ctx, FONT_BIG);
+		draw_text(ctx, "game", lmarg, 16, PL_BLUE);
+		draw_text(ctx, "over", lmarg, 28, PL_BLUE);
+
+		draw_set_font(ctx, FONT_SMALL);
+		draw_text(ctx, "escape", lmarg, 48, PL_YELLOW);
+		draw_text(ctx, "menu", lmarg + 4, 55, PL_PURPLE);
+		draw_text(ctx, "enter", lmarg, 62, PL_YELLOW);
+		draw_text(ctx, "again", lmarg + 4, 69, PL_PURPLE);
+		return;
+	}
+	
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {  
 		if(game->tiles[i] == 0) {
 			continue;

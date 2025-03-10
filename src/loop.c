@@ -1,11 +1,12 @@
 #include "loop.h"
 
-#include "game.h"
-#include "sounds.h"
-
 #include "stdio.h"
 #include "stdlib.h"
 #include "time.h"
+
+#include "game.h"
+#include "sounds.h"
+#include "setup_menu.h"
 
 void loop(struct Context* ctx) {
     // Calculate delta time
@@ -24,7 +25,10 @@ void loop(struct Context* ctx) {
     	// Simulate
     	switch(ctx->prog_state) {
 	    	case PROG_MAIN_MENU:
-		    	menu_control(&ctx->menu, ctx);
+		    	main_menu_loop(&ctx->menu, ctx);
+		    	break;
+	    	case PROG_SETUP:
+		    	setup_menu_loop(&ctx->menu, ctx);
 		    	break;
 	    	case PROG_GAME:
 				game_loop(ctx);
@@ -41,7 +45,10 @@ void loop(struct Context* ctx) {
 	draw_clear(&ctx->draw);
 	switch(ctx->prog_state) {
 		case PROG_MAIN_MENU:
-			menu_draw(&ctx->menu, &ctx->draw);
+			main_menu_draw(&ctx->menu, &ctx->draw);
+			break;
+		case PROG_SETUP:
+			setup_menu_draw(&ctx->menu, &ctx->game, &ctx->draw);
 			break;
 		case PROG_GAME:
 			game_draw(&ctx->game, &ctx->draw);
