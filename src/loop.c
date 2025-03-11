@@ -20,8 +20,41 @@ void loop(struct Context* ctx) {
 	while(ctx->time_accumulator >= DT) {
 		ctx->time_accumulator -= DT;
 
+    	// Audio
+    	audio_update(&ctx->audio);
+
     	// Poll input
     	input_poll(&ctx->input);
+
+		// Do transition if active
+    	if(ctx->transition_t != 0) {
+			ctx->transition_t--;
+	    	if(ctx->transition_t > 32) {
+				ctx->draw.transition_state = 1;
+				if(ctx->transition_t < 36) {
+					ctx->draw.transition_state = 2;
+				} 
+				if(ctx->transition_t < 32) {
+					ctx->draw.transition_state = 3;
+				}
+		    	continue;
+	    	} else {
+				ctx->draw.transition_state = 3;
+				if(ctx->transition_t < 16) {
+					ctx->draw.transition_state = 2;
+				} 
+				if(ctx->transition_t < 10) {
+					ctx->draw.transition_state = 1;
+				}
+	    	}
+	    	
+			if(ctx->transition_t == 32) {
+				ctx->transition_callback(ctx);
+			}
+			if(ctx->transition_t == 0) {
+				ctx->draw.transition_state = 0;
+			}
+    	}
 
     	// Simulate
     	switch(ctx->prog_state) {
@@ -40,9 +73,6 @@ void loop(struct Context* ctx) {
 			default:
 				break;
     	}
-		
-    	// Audio
-    	audio_update(&ctx->audio);
     }
 
 	// Draw

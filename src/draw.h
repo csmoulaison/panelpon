@@ -23,6 +23,9 @@ struct DrawContext {
 
 	// Font context
 	struct IRect font_src;
+
+	// For changing color palletes during transition
+	uint8_t transition_state;
 };
 
 enum Font {
@@ -50,5 +53,6 @@ void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete p
 void draw_set_font(struct DrawContext* ctx, enum Font font);
 void draw_text(struct DrawContext* ctx, const char* str, int16_t x, int16_t y, struct Pallete pl, enum Justification justification);
 struct Pallete fancy_blink_pl(uint8_t t, uint8_t rate_mod, uint8_t threshold, struct Pallete down, struct Pallete between, struct Pallete up);
+struct Pallete pl_from_transition_state(struct Pallete pl, uint8_t state);
 
 #endif // draw_h_INCLUDED

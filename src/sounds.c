@@ -88,8 +88,8 @@ void snd_up(struct Sound* sound) {
     float len = 0.08;
     float tmod = sound->t / len;
 
-    sound->freq = 600 + 600 * tmod;
-	sound->amp = 0.2;
+    sound->freq = 200 + 300 * tmod;
+	sound->amp = 0 + tmod * 0.2;
 
 	if(sound->t > len) sound->active = false;
 }
@@ -98,8 +98,24 @@ void snd_down(struct Sound* sound) {
     float len = 0.08;
     float tmod = sound->t / len;
 
-    sound->freq = 800- 600 * tmod;
-	sound->amp = 0.2;
+    sound->freq = 500 - 300 * tmod;
+	sound->amp = 0 + tmod * 0.2;
+
+	if(sound->t > len) sound->active = false;
+}
+
+void snd_transition(struct Sound* sound) {
+    float len = 0.25;
+    float tmod = sound->t / len;
+
+	tmod /= 2;
+	sound->freq = 200 - ((int)(tmod * 200) % 3) * (tmod * 400);
+	tmod *= 2;
+	if(tmod > 0.7) {
+		sound->amp = 0.45 - tmod * 0.45;
+	} else {
+		sound->amp = 0.0 + tmod * 0.45;
+	}
 
 	if(sound->t > len) sound->active = false;
 }

@@ -9,6 +9,12 @@
 #include "context.h"
 #include "cursor_callbacks.h"
 #include "speed_lut.h"
+#include "transition.h"
+
+void game_enter(struct Context* ctx) {
+    ctx->prog_state = PROG_GAME;
+    game_init(&ctx->game);
+}
 
 // Initializes a game round. Called every time a new round is started.
 void game_init(struct Game* game) {
@@ -117,9 +123,7 @@ void game_loop(struct Context* ctx) {
 	struct AudioContext* audio = &ctx->audio;
     
 	if(input->quit.just_pressed) {
-        sound_play_new(&ctx->audio, snd_back, 1, NULL);
-		ctx->prog_state = PROG_MAIN_MENU;
-		main_menu_init(&ctx->menu);
+		fade_transition(ctx, main_menu_init);
 		return;
 	}
 

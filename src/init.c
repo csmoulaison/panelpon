@@ -29,8 +29,10 @@ void init(struct Context* ctx) {
 	srand(time(NULL));
 
 	// Init main menu
-	ctx->prog_state = PROG_MAIN_MENU;
-	main_menu_init(&ctx->menu);
+	main_menu_init(ctx);
+
+	// Init transition state
+	ctx->transition_t = 0;
     
 	// Init draw context
 	{
@@ -53,6 +55,8 @@ void init(struct Context* ctx) {
 
     	draw->xoff = 0;
     	draw->yoff = 0;
+
+    	draw->transition_state = 0;
 	}
 
 	// Init audio context

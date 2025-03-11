@@ -27,6 +27,9 @@ struct Context {
     struct AudioContext audio;
 	struct Game game;
 	struct Menu menu;
+
+	void(*transition_callback)(struct Context* ctx);
+	uint8_t transition_t;
 };
 
 #endif // context_h_INCLUDED

@@ -3,20 +3,20 @@
 #include "context.h"
 #include "sounds.h"
 #include "menu_draw.h"
+#include "transition.h"
 
 #define MAX_SAVES 3
 
-void fselect_menu_init(struct Menu* menu, struct Game* game) {
-    (void)game;
-	menu->selected = 0;
-	menu->len = MAX_SAVES;
+void fselect_menu_init(struct Context* ctx) {
+	ctx->menu.selected = 0;
+	ctx->menu.len = MAX_SAVES;
+
+	ctx->prog_state = PROG_FSELECT;
 }
 
 void fselect_menu_loop(struct Menu* menu, struct Context* ctx) {
 	if(ctx->input.quit.just_pressed) {
-		ctx->prog_state = PROG_MAIN_MENU;
-		main_menu_init(menu);
-        sound_play_new(&ctx->audio, snd_back, 1, NULL);
+		fade_transition(ctx, main_menu_init);
 	}
 
 	menu_control(menu, ctx, ctx->input.left.just_pressed, ctx->input.right.just_pressed);

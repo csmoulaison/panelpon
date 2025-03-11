@@ -5,12 +5,14 @@
 #include "menu_draw.h"
 #include "setup_menu.h"
 #include "file_select.h"
+#include "transition.h"
 
 #define MAIN_MENU_LEN 3
 
-void main_menu_init(struct Menu* menu) {
-	menu->selected = 0;
-	menu->len = MAIN_MENU_LEN;
+void main_menu_init(struct Context* ctx) {
+	ctx->menu.selected = 0;
+	ctx->menu.len = MAIN_MENU_LEN;
+	ctx->prog_state = PROG_MAIN_MENU;
 }
 
 void main_menu_loop(struct Menu* menu, struct Context* ctx) {
@@ -19,14 +21,10 @@ void main_menu_loop(struct Menu* menu, struct Context* ctx) {
 	if(ctx->input.select.just_pressed) {
 		switch(menu->selected) {
     		case 0:
-        		ctx->prog_state = PROG_FSELECT;
-	            sound_play_new(&ctx->audio, snd_advance, 1, NULL);
-	            fselect_menu_init(menu, &ctx->game);
+	            fade_transition(ctx, fselect_menu_init);
 	            break;
 	    	case 1:
-	            ctx->prog_state = PROG_SETUP;
-	            sound_play_new(&ctx->audio, snd_advance, 1, NULL);
-	            setup_menu_init(menu, &ctx->game);
+	            fade_transition(ctx, setup_menu_init);
 	            break;
 	        case 2:
 				ctx->prog_state = PROG_EXIT;

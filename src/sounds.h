@@ -12,5 +12,6 @@ void snd_advance(struct Sound* sound);
 void snd_back(struct Sound* sound);
 void snd_up(struct Sound* sound);
 void snd_down(struct Sound* sound);
+void snd_transition(struct Sound* sound);
 
 #endif // sounds_h_INCLUDED

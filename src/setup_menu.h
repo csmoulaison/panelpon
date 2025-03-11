@@ -4,7 +4,7 @@
 #include "menu.h"
 #include "game.h"
 
-void setup_menu_init(struct Menu* menu, struct Game* game);
+void setup_menu_init(struct Context* ctx);
 void setup_menu_loop(struct Menu* menu, struct Context* ctx);
 void setup_menu_draw(struct Menu* menu, struct Game* game, struct DrawContext* ctx);
 

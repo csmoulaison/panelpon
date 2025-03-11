@@ -74,9 +74,11 @@ struct Game {
 	struct Shift shifts[BOARD_LEN]; // event timer encoded in shift.t
 };
 
+struct Context;
+
+void game_enter(struct Context* ctx);
 void game_init(struct Game* game);
 
-struct Context;
 void game_loop(struct Context* ctx);
 
 void game_control(struct Game* game, struct Input* input, struct AudioContext* audio); 

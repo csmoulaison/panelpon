@@ -15,6 +15,8 @@ void draw_sprite(struct DrawContext* ctx, struct IRect src, int16_t x, int16_t y
 }
 
 void draw_sprite_flip(struct DrawContext* ctx, struct IRect src, int16_t x, int16_t y, struct Pallete pl, SDL_RendererFlip flip) {
+	pl = pl_from_transition_state(pl, ctx->transition_state);
+	
     uint8_t* c1 = (uint8_t*)&pl.primary;
     uint8_t* c2 = (uint8_t*)&pl.secondary;
 
@@ -43,6 +45,8 @@ void draw_anim_flip_vert(struct DrawContext* ctx, uint8_t frame, uint8_t framele
 }
 
 void draw_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl) {
+	pl = pl_from_transition_state(pl, ctx->transition_state);
+
     uint8_t* c1 = (uint8_t*)&pl.primary;
     SDL_SetTextureColorMod(ctx->atlas_primary,   c1[0], c1[1], c1[2]);
 
@@ -72,6 +76,8 @@ void draw_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl) {
 }
 
 void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl) {
+	pl = pl_from_transition_state(pl, ctx->transition_state);
+
     uint8_t* c1 = (uint8_t*)&pl.primary;
     SDL_SetTextureColorMod(ctx->atlas_primary,   c1[0], c1[1], c1[2]);
 
@@ -151,3 +157,4 @@ struct Pallete fancy_blink_pl(uint8_t t, uint8_t rate_mod, uint8_t threshold, st
 	}
 	return up;
 }
+

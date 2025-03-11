@@ -4,6 +4,7 @@
 #include "sounds.h"
 #include "menu_draw.h"
 #include "speed_lut.h"
+#include "transition.h"
 
 #define SETUP_OPTIONS_LEN 4
 
@@ -14,20 +15,20 @@ enum SetupOption {
 	SETOPT_START
 };
 
-void setup_menu_init(struct Menu* menu, struct Game* game) {
-	game->cursor_type = CUR_CLASSIC;
-	game->start_speed= 0;
-	game->speed_increase_interval = 0;
+void setup_menu_init(struct Context* ctx) {
+    ctx->prog_state = PROG_SETUP;
 
-	menu->selected = 0;
-	menu->len = SETUP_OPTIONS_LEN;
+	ctx->game.cursor_type = CUR_CLASSIC;
+	ctx->game.start_speed= 0;
+	ctx->game.speed_increase_interval = 0;
+
+	ctx->menu.selected = 0;
+	ctx->menu.len = SETUP_OPTIONS_LEN;
 }
 
 void setup_menu_loop(struct Menu* menu, struct Context* ctx) {
 	if(ctx->input.quit.just_pressed) {
-		ctx->prog_state = PROG_MAIN_MENU;
-		main_menu_init(menu);
-        sound_play_new(&ctx->audio, snd_back, 1, NULL);
+		fade_transition(ctx, main_menu_init);
 	}
 	
 	menu_control(menu, ctx, ctx->input.up.just_pressed, ctx->input.down.just_pressed);
@@ -87,9 +88,7 @@ void setup_menu_loop(struct Menu* menu, struct Context* ctx) {
 	if(ctx->input.select.just_pressed) {
 		switch(menu->selected) {
 	    	case SETOPT_START:
-	            ctx->prog_state = PROG_GAME;
-	            sound_play_new(&ctx->audio, snd_advance, 1, NULL);
-	            game_init(&ctx->game);
+		    	fade_transition(ctx, game_enter);
 	            break;
 	        default:
 	            break;
