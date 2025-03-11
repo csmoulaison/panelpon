@@ -8,7 +8,8 @@
 void game_draw(struct Game* game, struct DrawContext* ctx);
 void game_draw_active(struct Game* game, struct DrawContext* ctx);
 void game_draw_pre(struct Game* game, struct DrawContext* ctx);
-void game_draw_post(struct Game* game, struct DrawContext* ctx);
+void game_draw_post_hitch(struct Game* game, struct DrawContext* ctx);
+void game_draw_post_display(struct Game* game, struct DrawContext* ctx);
 
 void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete* pl);
 

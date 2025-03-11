@@ -138,12 +138,11 @@ void game_loop(struct Context* ctx) {
         	game_control(game, input, audio);
         	game_tick(game, audio);
             break;
-		case GAME_POST:
-			if(game->yoff_countdown != 0) {
-	    		game->yoff_countdown -= 1;
-	    		break;
-			}
-
+		case GAME_POST_HITCH:
+			game->yoff_countdown--;
+    		break;
+    	case GAME_POST_DISPLAY:
+	    	game->yoff_countdown--;
         	if(input->select.just_pressed) {
             	game_init(game);
             	struct Sound sound;
@@ -152,7 +151,7 @@ void game_loop(struct Context* ctx) {
             	sound_play(audio, sound);
             	game->state = GAME_ACTIVE;
         	}
-    		break;
+	    	break;
     	default:
         	break;
 	}
@@ -190,7 +189,7 @@ void game_tick(struct Game* game, struct AudioContext* audio) {
 
 	// Grace period logic
 	if(tiles_reached_top(game)) {
-		game->state = GAME_POST;
+		game->state = GAME_POST_HITCH;
 		game->yoff_countdown = 250; // used for state handling
 		sound_play_new(audio, snd_lose, 1, NULL);
 		return;

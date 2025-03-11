@@ -30,6 +30,12 @@ enum Font {
 	FONT_SMALL
 };
 
+enum Justification {
+	JUSTIFY_L,
+	JUSTIFY_C,
+	JUSTIFY_R
+};
+
 void draw_clear(struct DrawContext* ctx);
 void draw_present(struct DrawContext* ctx);
 
@@ -42,6 +48,7 @@ void draw_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl);
 void draw_fill_rect(struct DrawContext* ctx, struct IRect rect, struct Pallete pl);
 
 void draw_set_font(struct DrawContext* ctx, enum Font font);
-void draw_text(struct DrawContext* ctx, const char* str, int16_t x, int16_t y, struct Pallete pl);
+void draw_text(struct DrawContext* ctx, const char* str, int16_t x, int16_t y, struct Pallete pl, enum Justification justification);
+struct Pallete fancy_blink_pl(uint8_t t, uint8_t rate_mod, uint8_t threshold, struct Pallete down, struct Pallete between, struct Pallete up);
 
 #endif // draw_h_INCLUDED

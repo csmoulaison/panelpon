@@ -11,8 +11,11 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 		case GAME_PRE:
 			game_draw_pre(game, ctx);
 			break;
-		case GAME_POST:
-			game_draw_post(game, ctx);
+		case GAME_POST_HITCH:
+			game_draw_post_hitch(game, ctx);
+			break;
+		case GAME_POST_DISPLAY:
+			game_draw_post_display(game, ctx);
 			break;
 		default:
 			break;
@@ -26,29 +29,29 @@ void game_draw(struct Game* game, struct DrawContext* ctx) {
 	draw_set_font(ctx, FONT_BIG);
 	
 	uint8_t lmarg = BOARD_W * 8 + 6;
-	draw_text(ctx, "score", lmarg, 0, PL_ALL_WHITE);
+	draw_text(ctx, "score", lmarg, 0, PL_ALL_WHITE, JUSTIFY_L);
 	char num_str[8];
 	sprintf(num_str, "%i", game->score_visible);
 	struct Pallete str_pl = PL_YELLOW;
 	if((game->score_blink / 4) % 2 != 0) {
 		str_pl = PL_ALL_WHITE;
 	}
-	draw_text(ctx, num_str, lmarg, 10, str_pl);
+	draw_text(ctx, num_str, lmarg, 10, str_pl, JUSTIFY_L);
 
 	// Draw speed text
-	draw_text(ctx, "speed", lmarg, 30, PL_ALL_WHITE);
+	draw_text(ctx, "speed", lmarg, 30, PL_ALL_WHITE, JUSTIFY_L);
 	sprintf(num_str, "%i", game->speed + 1);
 	str_pl = PL_CYAN;
 	if((game->speed_blink / 4) % 2 != 0) {
 		str_pl = PL_ALL_WHITE;
 	}
-	draw_text(ctx, num_str, lmarg, 40, str_pl);
+	draw_text(ctx, num_str, lmarg, 40, str_pl, JUSTIFY_L);
 
 	// Draw portrait
 	draw_rect(ctx, (struct IRect){lmarg, BOARD_H * 8 - 32 + 2, 30, 30}, PL_ALL_WHITE);
 	draw_sprite(ctx, (struct IRect){290, 2, 28, 28}, lmarg + 2, BOARD_H * 8 - 32 + 4, PL_PURPLE);
 	draw_set_font(ctx, FONT_SMALL);
-	draw_text(ctx, "isabel", lmarg, BOARD_H * 8 - 36, PL_PURPLE);
+	draw_text(ctx, "isabel", lmarg, BOARD_H * 8 - 36, PL_PURPLE, JUSTIFY_L);
 }
 
 void game_draw_active(struct Game* game, struct DrawContext* ctx) {
@@ -175,38 +178,17 @@ void game_draw_active(struct Game* game, struct DrawContext* ctx) {
 }
 
 void game_draw_pre(struct Game* game, struct DrawContext* ctx) {
-	(void)game;
-
-	// Fancy blinking text
-	uint8_t rem = (game->yoff_countdown / 8) % 8;
-	if(rem < 3) {
-		return;
-	}
-	struct Pallete pl = PL_PURPLE;
-	if(rem == 3 || rem == 7) {
-		pl = PL_RED;
-	}
+	struct Pallete pl = fancy_blink_pl(game->yoff_countdown, 8, 3, PL_ALL_BLACK, PL_RED, PL_PURPLE);
 
 	draw_set_font(ctx, FONT_BIG);
-	uint8_t lmarg = (BOARD_W * 8) / 2 - 22;
-	draw_text(ctx, "press", lmarg, 16, pl);
-	draw_text(ctx, "enter", lmarg, 28, pl);
+	uint8_t center = (BOARD_W * 8) / 2;
+	draw_text(ctx, "press", center, 16, pl, JUSTIFY_C);
+	draw_text(ctx, "enter", center, 28, pl, JUSTIFY_C);
 }
 
-void game_draw_post(struct Game* game, struct DrawContext* ctx) {
+void game_draw_post_hitch(struct Game* game, struct DrawContext* ctx) {
 	if(game->yoff_countdown == 0) {
-		uint8_t lmarg = (BOARD_W * 8) / 2 - 18;
-
-		draw_set_font(ctx, FONT_BIG);
-		draw_text(ctx, "game", lmarg, 16, PL_BLUE);
-		draw_text(ctx, "over", lmarg, 28, PL_BLUE);
-
-		draw_set_font(ctx, FONT_SMALL);
-		draw_text(ctx, "escape", lmarg, 48, PL_YELLOW);
-		draw_text(ctx, "menu", lmarg + 4, 55, PL_PURPLE);
-		draw_text(ctx, "enter", lmarg, 62, PL_YELLOW);
-		draw_text(ctx, "again", lmarg + 4, 69, PL_PURPLE);
-		return;
+		game->state = GAME_POST_DISPLAY;
 	}
 	
 	for(uint8_t i = 0; i < BOARD_LEN; i++) {  
@@ -229,6 +211,29 @@ void game_draw_post(struct Game* game, struct DrawContext* ctx) {
 		}
 		draw_sprite(ctx, spr, xcoord(i) * 8, 8 - game->yoff + ycoord(i) * 8 - yoff, pl);
 	}
+}
+
+void game_draw_post_display(struct Game* game, struct DrawContext* ctx) {
+	uint8_t center = (BOARD_W * 8) / 2;
+
+	draw_set_font(ctx, FONT_BIG);
+	struct Pallete game_over_pls[2] = {PL_RED, PL_BLUE};
+	for(int8_t y = 0; y < 2; y++) {
+		draw_text(ctx, "game", center, 16 - y, game_over_pls[y], JUSTIFY_C);
+		draw_text(ctx, "over", center, 28 - y, game_over_pls[y], JUSTIFY_C);
+	}
+
+	draw_set_font(ctx, FONT_SMALL);
+
+	struct Pallete blink_pl = fancy_blink_pl(game->yoff_countdown, 16, 3, PL_BLUE, PL_BLUE, PL_CYAN);
+	draw_text(ctx, "escape to", center, 48, PL_CYAN, JUSTIFY_C);
+	blink_pl = fancy_blink_pl(game->yoff_countdown, 16, 3, PL_ALL_BLACK, PL_BLUE, PL_CYAN);
+	draw_text(ctx, "goto menu", center, 55, blink_pl, JUSTIFY_C);
+
+	blink_pl = fancy_blink_pl(game->yoff_countdown + 64, 16, 3, PL_BLUE, PL_BLUE, PL_CYAN);
+	draw_text(ctx, "enter to", center, 66, PL_CYAN, JUSTIFY_C);
+	blink_pl = fancy_blink_pl(game->yoff_countdown + 64, 16, 3, PL_ALL_BLACK, PL_BLUE, PL_CYAN);
+	draw_text(ctx, "try again", center, 73, blink_pl, JUSTIFY_C);
 }
 
 void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete* pl) {

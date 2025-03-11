@@ -103,7 +103,7 @@ void setup_menu_draw(struct Menu* menu, struct Game* game, struct DrawContext* c
 	draw_rect(ctx, (struct IRect){0, 1, 128, 78}, PL_ALL_WHITE);
 
 	draw_set_font(ctx, FONT_SMALL);
-	draw_text(ctx, "game setup", 64 - 25, -7, PL_ALL_WHITE);
+	draw_text(ctx, "game setup", 64, -7, PL_ALL_WHITE, JUSTIFY_C);
 
 	ctx->yoff += 12;
 	char cursor_str[8];

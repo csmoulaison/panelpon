@@ -15,7 +15,8 @@
 enum GameState {
     GAME_PRE,
     GAME_ACTIVE,
-    GAME_POST
+    GAME_POST_HITCH,
+    GAME_POST_DISPLAY,
 };
 
 // Swaps occur between two different tiles and act as an "event" with a

@@ -42,7 +42,7 @@ void main_menu_draw(struct Menu* menu, struct DrawContext* ctx) {
 	ctx->yoff = LOGICAL_H / 2 - 20;
 
 	draw_set_font(ctx, FONT_BIG);
-	draw_text(ctx, "panelpon", -2, -12, PL_ALL_WHITE);
+	draw_text(ctx, "panelpon", -2, -12, PL_ALL_WHITE, JUSTIFY_L);
 
 	draw_rect(ctx, (struct IRect){0, 1, 64, 54}, PL_ALL_WHITE);
 	ctx->yoff += 8;

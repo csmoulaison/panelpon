@@ -25,7 +25,6 @@ void fselect_menu_loop(struct Menu* menu, struct Context* ctx) {
 void fselect_menu_draw(struct Menu* menu, struct Game* game, struct DrawContext* ctx) {
 	// NOTE from the amazing hannah baby
 	// tiles fall within file border when it's selected, boop beep boop
-    
     (void)menu;
 	(void)game;
 

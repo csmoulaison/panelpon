@@ -20,8 +20,8 @@ void menu_draw_list(struct DrawContext* ctx, struct Menu* menu, const char** opt
         		}
         	}
 		}
-		draw_text(ctx, opt_strs[i], 16, 1, PL_RED);
-		draw_text(ctx, opt_strs[i], 16, 1 - yoff, pl);
+		draw_text(ctx, opt_strs[i], 16, 1, PL_RED, JUSTIFY_L);
+		draw_text(ctx, opt_strs[i], 16, 1 - yoff, pl, JUSTIFY_L);
 		ctx->yoff += 16;
 	}
 }

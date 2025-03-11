@@ -95,14 +95,36 @@ void draw_set_font(struct DrawContext* ctx, enum Font font) {
 	}
 }
 
-void draw_text(struct DrawContext* ctx, const char* str, int16_t x, int16_t y, struct Pallete pl) {
+void draw_text(struct DrawContext* ctx, const char* str, int16_t x, int16_t y, struct Pallete pl, enum Justification justification) {
 	struct IRect src = ctx->font_src;
-	uint8_t rootx = src.x;
+	uint16_t rootx = src.x;
+
+	uint8_t len = 0;
+	while(str[len] != '\0') {
+		len++;
+	}
+
+	int16_t dst_xoff;
+	switch(justification) {
+		case JUSTIFY_L:
+			dst_xoff = 0;
+			break;
+		case JUSTIFY_C:
+			// Handle dividing odd numbered text len by 2.
+			float fxoff = ((float)len / 2) * (src.w + 1);
+			dst_xoff = -(int16_t)fxoff;
+			break;
+		case JUSTIFY_R:
+			dst_xoff = -len * (src.w + 1);
+			break;
+		default:
+			break;
+	}
 
 	uint8_t i = 0;
 	while(str[i] != '\0') {
-		uint8_t ascii_off = 97;
-		uint8_t src_off = 0;
+		uint16_t ascii_off = 97;
+		uint16_t src_off = 0;
 		if(str[i] < 97) {
 			ascii_off = 48;
 			src_off = 208;
@@ -113,8 +135,19 @@ void draw_text(struct DrawContext* ctx, const char* str, int16_t x, int16_t y, s
 			src.x = -src.w;
 		}
 		
-		draw_sprite(ctx, src, x, y, pl);
+		draw_sprite(ctx, src, x + dst_xoff, y, pl);
 		x += src.w + 1;
 		i++;
 	}
+}
+
+struct Pallete fancy_blink_pl(uint8_t t, uint8_t rate_mod, uint8_t threshold, struct Pallete down, struct Pallete between, struct Pallete up) {
+	uint8_t rem = (t / rate_mod) % 8;
+	if(rem < threshold) {
+		return down;
+	}
+	if(rem == threshold || rem == 7) {
+		return between;
+	}
+	return up;
 }
