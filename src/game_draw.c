@@ -228,12 +228,12 @@ void game_draw_post_display(struct Game* game, struct DrawContext* ctx) {
 	struct Pallete blink_pl = fancy_blink_pl(game->yoff_countdown, 16, 3, PL_BLUE, PL_BLUE, PL_CYAN);
 	draw_text(ctx, "escape to", center, 48, PL_CYAN, JUSTIFY_C);
 	blink_pl = fancy_blink_pl(game->yoff_countdown, 16, 3, PL_ALL_BLACK, PL_BLUE, PL_CYAN);
-	draw_text(ctx, "goto menu", center, 55, blink_pl, JUSTIFY_C);
+	draw_text(ctx, "quit", center, 55, blink_pl, JUSTIFY_C);
 
 	blink_pl = fancy_blink_pl(game->yoff_countdown + 64, 16, 3, PL_BLUE, PL_BLUE, PL_CYAN);
 	draw_text(ctx, "enter to", center, 66, PL_CYAN, JUSTIFY_C);
 	blink_pl = fancy_blink_pl(game->yoff_countdown + 64, 16, 3, PL_ALL_BLACK, PL_BLUE, PL_CYAN);
-	draw_text(ctx, "try again", center, 73, blink_pl, JUSTIFY_C);
+	draw_text(ctx, "retry", center, 73, blink_pl, JUSTIFY_C);
 }
 
 void spr_from_index(uint8_t* board, uint8_t i, struct IRect* spr, struct Pallete* pl) {
