@@ -36,6 +36,7 @@ struct Game {
 	bool grace_period;
 	uint8_t cursors_len;
 	uint8_t speed_increase_interval;
+	bool save_active; // TODO - implement save game flag
 
 	uint16_t score;
 	uint16_t score_visible;

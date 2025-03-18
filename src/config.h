@@ -15,6 +15,7 @@
 #define FRAMES_SCORE_BLINK 64
 #define FRAMES_SPEED_BLINK 128
 #define FRAMES_SCORE_COUNTUP 8
+#define FRAMES_DIALOGUE_CHAR 8
 
 // Screen config
 #define LOGICAL_W 216

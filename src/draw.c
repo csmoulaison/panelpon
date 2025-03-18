@@ -94,7 +94,7 @@ void draw_set_font(struct DrawContext* ctx, enum Font font) {
 			ctx->font_src = (struct IRect){0, 48, 8, 8};
 			break;
 		case FONT_SMALL:
-			ctx->font_src = (struct IRect){168, 44, 4, 4};
+			ctx->font_src = (struct IRect){136, 44, 4, 4};
 			break;
 		default:
 			break;
@@ -133,14 +133,19 @@ void draw_text(struct DrawContext* ctx, const char* str, int16_t x, int16_t y, s
 		uint16_t src_off = 0;
 		if(str[i] < 97) {
 			ascii_off = 48;
-			src_off = 208;
+			src_off = src.w * 26;
 		}
+
+		if(str[i] == 45) {
+			src_off = src.w * 42;
+		}
+
 		src.x = rootx + src_off + src.w * ((uint8_t)str[i] - ascii_off);
 
 		if(str[i] == 32) {
 			src.x = -src.w;
 		}
-		
+	
 		draw_sprite(ctx, src, x + dst_xoff, y, pl);
 		x += src.w + 1;
 		i++;

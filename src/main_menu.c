@@ -42,7 +42,7 @@ void main_menu_draw(struct Menu* menu, struct DrawContext* ctx) {
 	draw_set_font(ctx, FONT_BIG);
 	draw_text(ctx, "panelpon", -2, -12, PL_ALL_WHITE, JUSTIFY_L);
 
-	draw_rect(ctx, (struct IRect){0, 1, 64, 54}, PL_ALL_WHITE);
+	draw_rect(ctx, (struct IRect){0, 0, 64, 56}, PL_ALL_WHITE);
 	ctx->yoff += 8;
 
 	const char* opt_strs[MAIN_MENU_LEN] = { "stor", "play", "exit" };

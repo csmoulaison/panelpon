@@ -10,6 +10,8 @@
 #include "game_draw.h"
 #include "audio.h"
 #include "main_menu.h"
+#include "dialogue.h"
+#include "save.h"
 
 #define LOGICAL_W 216
 #define LOGICAL_H 216
@@ -27,6 +29,8 @@ struct Context {
     struct AudioContext audio;
 	struct Game game;
 	struct Menu menu;
+	struct Dialogue dialogue;
+	struct Save save;
 
 	void(*transition_callback)(struct Context* ctx);
 	uint8_t transition_t;

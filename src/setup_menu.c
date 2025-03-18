@@ -99,10 +99,10 @@ void setup_menu_loop(struct Menu* menu, struct Context* ctx) {
 void setup_menu_draw(struct Menu* menu, struct Game* game, struct DrawContext* ctx) {
 	ctx->xoff = LOGICAL_W / 2 - 64;
 	ctx->yoff = LOGICAL_H / 2 - 40;
-	draw_rect(ctx, (struct IRect){0, 1, 128, 78}, PL_ALL_WHITE);
+	draw_rect(ctx, (struct IRect){0, 0, 128, 80}, PL_ALL_WHITE);
 
-	draw_set_font(ctx, FONT_SMALL);
-	draw_text(ctx, "game setup", 64, -7, PL_ALL_WHITE, JUSTIFY_C);
+	draw_set_font(ctx, FONT_BIG);
+	draw_text(ctx, "game setup", 64, -12, PL_ALL_WHITE, JUSTIFY_C);
 
 	ctx->yoff += 12;
 	char cursor_str[8];

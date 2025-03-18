@@ -6,6 +6,7 @@ enum ProgState {
 	PROG_MAIN_MENU,
 	PROG_FSELECT,
 	PROG_SETUP,
+	PROG_DIALOGUE,
 	PROG_GAME
 };
 
